@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "23869458665",
+    "project_id": "newoverlock",
+    "storage_bucket": "newoverlock.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:23869458665:android:3191e46c92382554694878",
+        "android_client_info": {
+          "package_name": "com.example.overlock"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "23869458665-1203ooni50hcieavm514rb2s2111ibt6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.overlock",
+            "certificate_hash": "97f78b75285c296ca243d6295891c899bdbdaf7a"
+          }
+        },
+        {
+          "client_id": "23869458665-hi3s9nfv9rtdaubj7v371vgjkfb85a9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmf_GVwqjvD2BJnXjUAdRygsLvsMwB7Hg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "23869458665-hi3s9nfv9rtdaubj7v371vgjkfb85a9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
