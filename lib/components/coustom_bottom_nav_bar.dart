@@ -32,7 +32,7 @@ class CustomBottomNavBar extends StatelessWidget {
               icon: Icon(Icons.how_to_vote, size:18 ), child: Text('투표', style: TextStyle(fontSize: 12),),
             ),
             Tab(
-              icon: Icon(Icons.article_outlined, size:18 ), child: Text('토픽게시판', style: TextStyle(fontSize: 12),),
+              icon: Icon(Icons.article_outlined, size:18 ), child: Text('익명게시판', style: TextStyle(fontSize: 12),),
             ),
             Tab(
               icon: Icon(Icons.accessibility,size:18 ), child: Text('온라인동기', style: TextStyle(fontSize: 12),),

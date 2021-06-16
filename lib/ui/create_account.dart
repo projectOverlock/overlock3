@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +18,8 @@ class _CreateAccountState extends State<CreateAccount> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _nicknameController = TextEditingController();
+
   bool _success;
   String _userEmail = '';
 
@@ -65,9 +68,23 @@ class _CreateAccountState extends State<CreateAccount> {
                       padding: const EdgeInsets.only(
                           left: 18.0, right: 18.0, bottom: 10),
                       child: TextFormField(
+                        controller: _nicknameController,
+                        decoration: const InputDecoration(labelText: 'nickname'),
+                        validator: (String value) {
+                          if (value.isEmpty) {
+                            return 'Please enter some text';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 18.0, right: 18.0, bottom: 10),
+                      child: TextFormField(
                         controller: _passwordController,
                         decoration:
-                            const InputDecoration(labelText: 'Password'),
+                        const InputDecoration(labelText: 'Password'),
                         validator: (String value) {
                           if (value.isEmpty) {
                             return 'Please enter some text';
@@ -95,7 +112,7 @@ class _CreateAccountState extends State<CreateAccount> {
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                               side: BorderSide(
-                                  color: Colors.red[900],),
+                                color: Colors.red[900],),
                             ),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {
@@ -150,6 +167,7 @@ class _CreateAccountState extends State<CreateAccount> {
     // Clean up the controller when the Widget is disposed
     _emailController.dispose();
     _passwordController.dispose();
+    _nicknameController.dispose();
     super.dispose();
   }
 
@@ -160,11 +178,27 @@ class _CreateAccountState extends State<CreateAccount> {
       password: _passwordController.text,
     ))
         .user;
+    await user.updateProfile(displayName: _nicknameController.text);
+
     if (user != null) {
       setState(() {
         _success = true;
         _userEmail = user.email;
       });
+
+      String name =_nicknameController.text;
+
+      user.updateProfile(displayName: name);
+
+      await FirebaseFirestore.instance.collection('users').doc(_auth.currentUser.uid).set({
+        "name": name,
+        "email": _emailController.text,
+        "status": "Unavalible",
+        "uid": _auth.currentUser.uid,
+
+      });
+
+
     } else {
       _success = false;
     }

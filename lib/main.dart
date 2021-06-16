@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ bool USE_FIRESTORE_EMULATOR = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
   if (USE_FIRESTORE_EMULATOR) {
     FirebaseFirestore.instance.settings = const Settings(
@@ -47,8 +49,7 @@ class _MyAppState extends State<MyApp> {
     delegate.setNewRoutePath(SplashPageConfig);
    // backButtonDispatcher = ShoppingBackButtonDispatcher(delegate);
   }
-int _counter =0;
-  String nickname;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +74,26 @@ int _counter =0;
     }, onError: (Object err) {
       print('Got error $err');
     });
+
+    FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseFirestore _firestore = FirebaseFirestore.instance;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final QuerySnapshot result = await _firestore
+        .collection('users')
+        .where(_auth.currentUser.uid)
+        .get();
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(_auth.currentUser.uid)
+        .get()
+        .then((value) => _auth.currentUser.updateProfile(displayName: value['name']));
+
+    await prefs.setString('id', _auth.currentUser.uid);
+    await prefs.setString('name', _auth.currentUser.displayName);
+    await prefs.setString('photoUrl', _auth.currentUser.photoURL);
+
   }
 
   @override

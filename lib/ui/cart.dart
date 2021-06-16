@@ -39,7 +39,7 @@ class _CartState extends State<Cart> {
         .doc(firebaseAuth.currentUser.uid.toString())
         .get()
         .then((doc) {
-      nickname = doc["nickname"];
+      nickname = doc["name"];
     });
 
     return Scaffold(

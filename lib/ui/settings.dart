@@ -58,7 +58,7 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   TextEditingController controllerNickname;
-  TextEditingController controllerAboutMe;
+  //TextEditingController controllerAboutMe;
 
   SharedPreferences prefs;
 
@@ -83,11 +83,11 @@ class SettingsScreenState extends State<SettingsScreen> {
     prefs = await SharedPreferences.getInstance();
     id = prefs.getString('id') ?? '';
     nickname = prefs.getString('nickname') ?? '';
-    aboutMe = prefs.getString('aboutMe') ?? '';
+    //aboutMe = prefs.getString('aboutMe') ?? '';
     photoUrl = prefs.getString('photoUrl') ?? '';
 
     controllerNickname = TextEditingController(text: nickname);
-    controllerAboutMe = TextEditingController(text: aboutMe);
+   // controllerAboutMe = TextEditingController(text: aboutMe);
 
     // Force refresh input
     setState(() {});
@@ -279,7 +279,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                           .copyWith(primaryColor: Colors.red[900]),
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: 'Sweetie',
+                          hintText: nickname.toString(),
                           contentPadding: EdgeInsets.all(5.0),
                           hintStyle: TextStyle(color: Colors.grey),
                         ),
@@ -294,35 +294,35 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
 
                   // About me
-                  Container(
-                    child: Text(
-                      'About me',
-                      style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red[900]),
-                    ),
-                    margin: EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0),
-                  ),
-                  Container(
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(primaryColor: Colors.red[900]),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Fun, like travel and play PES...',
-                          contentPadding: EdgeInsets.all(5.0),
-                          hintStyle: TextStyle(color: Colors.grey),
-                        ),
-                        controller: controllerAboutMe,
-                        onChanged: (value) {
-                          aboutMe = value;
-                        },
-                        focusNode: focusNodeAboutMe,
-                      ),
-                    ),
-                    margin: EdgeInsets.only(left: 30.0, right: 30.0),
-                  ),
+                  // Container(
+                  //   child: Text(
+                  //     'About me',
+                  //     style: TextStyle(
+                  //         fontStyle: FontStyle.italic,
+                  //         fontWeight: FontWeight.bold,
+                  //         color: Colors.red[900]),
+                  //   ),
+                  //   margin: EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0),
+                  // ),
+                  // Container(
+                  //   child: Theme(
+                  //     data: Theme.of(context)
+                  //         .copyWith(primaryColor: Colors.red[900]),
+                  //     child: TextField(
+                  //       decoration: InputDecoration(
+                  //         hintText: 'Fun, like travel and play PES...',
+                  //         contentPadding: EdgeInsets.all(5.0),
+                  //         hintStyle: TextStyle(color: Colors.grey),
+                  //       ),
+                  //       controller: controllerAboutMe,
+                  //       onChanged: (value) {
+                  //         aboutMe = value;
+                  //       },
+                  //       focusNode: focusNodeAboutMe,
+                  //     ),
+                  //   ),
+                  //   margin: EdgeInsets.only(left: 30.0, right: 30.0),
+                  // ),
                 ],
                 crossAxisAlignment: CrossAxisAlignment.start,
               ),

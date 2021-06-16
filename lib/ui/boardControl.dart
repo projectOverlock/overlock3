@@ -1,23 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:overlock/components/Top_bar.dart';
 import 'package:overlock/router/ui_pages.dart';
 import 'package:overlock/ui/Topic/lisTip.dart';
 import 'package:overlock/ui/Topic/listHobby.dart';
 import 'package:overlock/ui/Topic/listHumor.dart';
 import 'package:overlock/ui/Topic/listLevel.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../app_state.dart';
 import '../constants.dart';
 import 'Topic/listCreator2.dart';
 import 'cart.dart';
 
+//익명게시판
+
+
 class boardContol extends StatefulWidget {
   @override
   _boardContolState createState() => _boardContolState();
 }
+
 
 class _boardContolState extends State<boardContol> {
 

@@ -37,7 +37,6 @@ List<Map<String, String>> splashData = [
 ];
 
 class _LoginState extends State<Login> {
-  static final double _connerRadius = 8.0;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   SharedPreferences prefs;
@@ -68,7 +67,7 @@ class _LoginState extends State<Login> {
               children: [
                 Expanded(
                   flex: 25,
-                  child: PageView.builder(
+                  child: PageView.builder(  //어플리케이션 소개 페이지 생성(상단)
                     onPageChanged: (value) {
                       setState(() {
                         currentPage = value;
@@ -87,10 +86,9 @@ class _LoginState extends State<Login> {
                     padding: EdgeInsets.symmetric(horizontal: 0),
                     child: Column(
                       children: <Widget>[
-                        Spacer(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
+                          children: List.generate( // 색인 표시
                             splashData.length,
                             (index) => buildDot(index: index),
                           ),
@@ -99,20 +97,18 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
+
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 18.0, right: 18.0, bottom: 10),
-                  child: buildTextFormField(
+                  child: buildTextFormField( // 이메일 주소(아이디 입력)
                       "Email Address", _emailController, false),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
                       left: 18.0, right: 18.0, bottom: 10),
                   child:
-                      buildTextFormField("Password", _passwordController, true),
+                      buildTextFormField("Password", _passwordController, true),// 비번 입력
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.max,
@@ -240,35 +236,45 @@ class _LoginState extends State<Login> {
           .user;
       final appState = Provider.of<AppState>(context, listen: false);
       appState.login();
+
       final QuerySnapshot result = await FirebaseFirestore.instance
           .collection('users')
           .where('id', isEqualTo: user.uid)
           .get();
-      final List<DocumentSnapshot> documents = result.docs;
-      if (documents.length == 0) {
-        // Update data to server if new user
-        FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'nickname': user.displayName,
-          'photoUrl': user.photoURL,
-          'id': user.uid,
-          'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
-          'chattingWith': null
-        });
 
-        // Write data to local
-        currentUser = user;
-        await prefs.setString('id', currentUser.uid);
-        await prefs.setString('nickname', currentUser.displayName);
-        await prefs.setString('photoUrl', currentUser.photoURL);
-      } else {
-        // Write data to local
-        await prefs.setString('id', documents[0]['id']);
-        await prefs.setString('nickname', documents[0]['nickname']);
-        await prefs.setString('photoUrl', documents[0]['photoUrl']);
-        await prefs.setString('aboutMe', documents[0]['aboutMe']);
-      }
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_auth.currentUser.uid)
+          .get()
+          .then((value) => user.updateProfile(displayName: value['name']));
 
-      print("로그인성공");
+      await prefs.setString('id', currentUser.uid);
+      await prefs.setString('name', currentUser.displayName);
+      await prefs.setString('photoUrl', currentUser.photoURL);
+      //
+      // final List<DocumentSnapshot> documents = result.docs;
+      // // if (documents.length == 0) {
+      // //   // Update data to server if new user
+      // //   FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      // //     'name': user.displayName,
+      // //     'photoUrl': user.photoURL,
+      // //     'id': user.uid,
+      // //     'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
+      // //     'chattingWith': null
+      // //   });
+      //
+      //   // Write data to local
+      //   currentUser = user;
+      //
+      // } else {
+      //   // Write data to local
+      //   await prefs.setString('id', documents[0]['id']);
+      //   await prefs.setString('nickname', documents[0]['nickname']);
+      //   await prefs.setString('photoUrl', documents[0]['photoUrl']);
+      //   await prefs.setString('aboutMe', documents[0]['aboutMe']);
+      // }
+      //
+      // print("로그인성공");
 
       // Provider.of<PageNotifier>(context, listen: false).goToOtherPage(OverlockMain.pageName);
 
