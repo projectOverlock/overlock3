@@ -58,6 +58,7 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   TextEditingController controllerNickname;
+
   //TextEditingController controllerAboutMe;
 
   SharedPreferences prefs;
@@ -81,13 +82,13 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   void readLocal() async {
     prefs = await SharedPreferences.getInstance();
-    id = prefs.getString('id') ?? '';
-    nickname = prefs.getString('nickname') ?? '';
+    id = prefs.getString('id') ?? 'failload1';
+    nickname = prefs.getString('name') ?? 'failload2';
     //aboutMe = prefs.getString('aboutMe') ?? '';
-    photoUrl = prefs.getString('photoUrl') ?? '';
+    photoUrl = prefs.getString('photoUrl') ?? 'failload3';
 
     controllerNickname = TextEditingController(text: nickname);
-   // controllerAboutMe = TextEditingController(text: aboutMe);
+    // controllerAboutMe = TextEditingController(text: aboutMe);
 
     // Force refresh input
     setState(() {});
@@ -123,7 +124,7 @@ class SettingsScreenState extends State<SettingsScreen> {
         storageTaskSnapshot.ref.getDownloadURL().then((downloadUrl) {
           photoUrl = downloadUrl;
           FirebaseFirestore.instance.collection('users').doc(id).update({
-            'nickname': nickname,
+            'name': nickname,
             'aboutMe': aboutMe,
             'photoUrl': photoUrl
           }).then((data) async {
@@ -167,7 +168,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     FirebaseFirestore.instance.collection('users').doc(id).update({
-      'nickname': nickname,
+      'name': nickname,
       'aboutMe': aboutMe,
       'photoUrl': photoUrl
     }).then((data) async {
@@ -188,7 +189,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       Fluttertoast.showToast(msg: err.toString());
     });
   }
-
+  DateTime _selectedDate;
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -262,6 +263,33 @@ class SettingsScreenState extends State<SettingsScreen> {
               // Input
               Column(
                 children: <Widget>[
+                  ElevatedButton(
+                    child: Text('Run'),
+
+                    onPressed: () {
+                      Future<DateTime> future = showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2030),
+                        builder: (BuildContext context, Widget child) {
+                          return Theme(
+                            data: ThemeData.dark(),
+                            child: child,
+                          );
+                        },
+                      );
+                      future.then((date) {
+                        setState(() {
+                          _selectedDate = date;
+                        });
+                      });
+                    },
+                  ),
+                  Text(
+                    '결과 : $_selectedDate',
+                  ),
+
                   // Username
                   Container(
                     child: Text(
@@ -273,6 +301,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     margin: EdgeInsets.only(left: 10.0, bottom: 5.0, top: 10.0),
                   ),
+
+
                   Container(
                     child: Theme(
                       data: Theme.of(context)
@@ -329,17 +359,14 @@ class SettingsScreenState extends State<SettingsScreen> {
 
               // Button
               Container(
-                child: FlatButton(
+                child: TextButton(
                   onPressed: handleUpdateData,
                   child: Text(
                     'UPDATE',
                     style: TextStyle(fontSize: 16.0),
                   ),
-                  color: Colors.red[900],
-                  highlightColor: Color(0xff8d93a0),
-                  splashColor: Colors.transparent,
-                  textColor: Colors.white,
-                  padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
+                 
+
                 ),
                 margin: EdgeInsets.only(top: 50.0, bottom: 50.0),
               ),
