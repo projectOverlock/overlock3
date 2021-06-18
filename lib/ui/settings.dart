@@ -365,7 +365,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     'UPDATE',
                     style: TextStyle(fontSize: 16.0),
                   ),
-                 
+
 
                 ),
                 margin: EdgeInsets.only(top: 50.0, bottom: 50.0),
