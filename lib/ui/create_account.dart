@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../app_state.dart';
+import '../constants.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -44,7 +45,7 @@ class _CreateAccountState extends State<CreateAccount> {
                   children: [
                     Expanded(
                       child: CircleAvatar(
-                        backgroundColor: Colors.red[900],
+                        backgroundColor: kPrimaryColor,
                         radius: 50,
                         child: Image.asset('assets/images/splash_overlock1.png',
                             width: itemWidth * 0.17, height: itemHeight * 0.17),
@@ -107,12 +108,12 @@ class _CreateAccountState extends State<CreateAccount> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.red[900],
+                              primary: kPrimaryColor,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                               side: BorderSide(
-                                color: Colors.red[900],),
+                                color: kPrimaryColor,),
                             ),
                             onPressed: () async {
                               if (_formKey.currentState.validate()) {

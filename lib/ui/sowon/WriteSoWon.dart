@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../app_state.dart';
+import '../../constants.dart';
+
 
 String colName = "소원수리";
 
@@ -14,15 +14,19 @@ final String fnDescription = "description";
 final String fnDatetime = "datetime";
 final String recomand = "Recomand";
 final String fnCatagory = "Catagory";
-
+final String userID = "userID";
+final String pageView = "pageView";
+final String likes = "likes";
+final String replys = "replys";
  String _selectedValue = '폭언';
-
 final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 String id = '';
 String nickname = 'default';
 SharedPreferences prefs;
 final _valueList = ['폭언', '폭행', '성추행성폭행', '소원수리'];
 final int _Recomand =0;
+
+
 class writeSoWon extends StatefulWidget {
   @override
   _writeSoWonState createState() => _writeSoWonState();
@@ -34,14 +38,19 @@ class _writeSoWonState extends State<writeSoWon> {
   TextEditingController _newDescCon = TextEditingController();
 
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context, listen: false);
-    final items = appState.cartItems;
-    readLocal();
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(firebaseAuth.currentUser.uid.toString())
+        .get()
+        .then((doc) {
+      nickname = doc["name"];
+    });
 
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.red[900],
+        backgroundColor: kPrimaryColor,
         title: const Text(
           '소원수리 작성',
           style: TextStyle(
@@ -52,7 +61,7 @@ class _writeSoWonState extends State<writeSoWon> {
             icon: const Icon(Icons.my_library_add),
             onPressed: () {
               if (_newDescCon.text.isNotEmpty && _newNameCon.text.isNotEmpty) {
-                createDoc(_newNameCon.text, _newDescCon.text, _selectedValue);
+                createDoc(_newNameCon.text, _newDescCon.text, _selectedValue, nickname);
               }
               _newNameCon.clear();
               _newDescCon.clear();
@@ -111,7 +120,7 @@ class _writeSoWonState extends State<writeSoWon> {
                     onPressed: () {
                       if (_newDescCon.text.isNotEmpty &&
                           _newNameCon.text.isNotEmpty) {
-                        createDoc(_newNameCon.text, _newDescCon.text, _selectedValue);
+                        createDoc(_newNameCon.text, _newDescCon.text, _selectedValue, nickname );
                       }
                       _newNameCon.clear();
                       _newDescCon.clear();
@@ -136,14 +145,16 @@ class _writeSoWonState extends State<writeSoWon> {
     setState(() {});
   }
 
-  void createDoc(String name, String description, var selectedValue) {
+  void createDoc(String name, String description, var selectedValue, String nk) {
     FirebaseFirestore.instance.collection(colName).add({
       fnName: name,
       fnDescription: description,
       fnDatetime: Timestamp.now(),
       fnCatagory : selectedValue,
-      //userID: firebaseAuth.currentUser.uid.toString()
-      recomand: _Recomand
+      userID: nk,
+      pageView : 0,
+      likes : 0,
+      replys : 0
     });
 
 

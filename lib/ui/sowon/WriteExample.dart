@@ -3,40 +3,42 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants.dart';
+import '../../constants.dart';
 
 
-// 컬렉션명
-String colName = "계급";
+String colName = "처벌사례";
 
 // 필드명
 final String fnName = "name";
+final String fnDescription = "description";
+final String fnDatetime = "datetime";
+final String recomand = "Recomand";
+final String fnCatagory = "Catagory";
+final String userID = "userID";
 final String pageView = "pageView";
 final String likes = "likes";
 final String replys = "replys";
-final String fnDescription = "description";
-final String fnDatetime = "datetime";
-final String userID = "userID";
+String _selectedValue = '폭언';
 final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 String id = '';
 String nickname = 'default';
 SharedPreferences prefs;
-final _valueList = ['꿀팁', '취미', '계급', '유머', '제작'];
-var _selectedValue = '계급';
-class Cart extends StatefulWidget {
+final _valueList = ['폭언', '폭행', '성추행성폭행', '소원수리'];
+final int _Recomand =0;
 
+class writeExample extends StatefulWidget {
 
- @override
-  _CartState createState() => _CartState();
+  @override
+  _writeExampleState createState() => _writeExampleState();
 }
 
-class _CartState extends State<Cart> {
+class _writeExampleState extends State<writeExample> {
   @override
   TextEditingController _newNameCon = TextEditingController();
   TextEditingController _newDescCon = TextEditingController();
 
-
   Widget build(BuildContext context) {
+
     FirebaseFirestore.instance
         .collection('users')
         .doc(firebaseAuth.currentUser.uid.toString())
@@ -50,7 +52,7 @@ class _CartState extends State<Cart> {
         elevation: 0,
         backgroundColor: kPrimaryColor,
         title: const Text(
-          '새글 작성',
+          '소원수리 작성',
           style: TextStyle(
               fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
         ),
@@ -59,7 +61,7 @@ class _CartState extends State<Cart> {
             icon: const Icon(Icons.my_library_add),
             onPressed: () {
               if (_newDescCon.text.isNotEmpty && _newNameCon.text.isNotEmpty) {
-                createDoc(_newNameCon.text, _newDescCon.text, nickname);
+                createDoc(_newNameCon.text, _newDescCon.text, _selectedValue, nickname);
               }
               _newNameCon.clear();
               _newDescCon.clear();
@@ -76,6 +78,7 @@ class _CartState extends State<Cart> {
             children: [
               Column(
                 children: <Widget>[
+
                   DropdownButton(
                     isExpanded: true,
                     value: _selectedValue,
@@ -85,7 +88,6 @@ class _CartState extends State<Cart> {
                     onChanged: (value) {
                       setState(() {
                         _selectedValue = value;
-                        colName = value;
                       });
                     },
                   ),
@@ -118,7 +120,7 @@ class _CartState extends State<Cart> {
                     onPressed: () {
                       if (_newDescCon.text.isNotEmpty &&
                           _newNameCon.text.isNotEmpty) {
-                        createDoc(_newNameCon.text, _newDescCon.text, nickname);
+                        createDoc(_newNameCon.text, _newDescCon.text, _selectedValue, nickname );
                       }
                       _newNameCon.clear();
                       _newDescCon.clear();
@@ -131,20 +133,32 @@ class _CartState extends State<Cart> {
           ),
         ),
       ),
+
     );
   }
 
-  void createDoc(String name, String description, String nk) {
+  void readLocal() async {
+    prefs = await SharedPreferences.getInstance();
+    id = prefs.getString('id') ?? '';
+    nickname = prefs.getString('nickname') ?? '';
+
+    // Force refresh input
+    setState(() {});
+  }
+
+  void createDoc(String name, String description, var selectedValue, String nk) {
     FirebaseFirestore.instance.collection(colName).add({
       fnName: name,
       fnDescription: description,
       fnDatetime: Timestamp.now(),
+      fnCatagory : selectedValue,
       userID: nk,
       pageView : 0,
       likes : 0,
       replys : 0
-
-
     });
+
+
   }
 }
+

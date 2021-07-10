@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,16 +16,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Map<String, dynamic> userMap;
+  List userList = new List();
+
   bool isLoading = false;
   final TextEditingController _search = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  int itemCountNum =0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     setStatus("Online");
+    onStart();
   }
 
   void setStatus(String status) async {
@@ -54,8 +57,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       return "$user2$user1";
     }
   }
-
-  void onSearch() async {
+  void onStart() async {
     FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
     setState(() {
@@ -64,16 +66,51 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     await _firestore
         .collection('users')
-        .where("email", isEqualTo: _search.text)
+        .where("status", isEqualTo: "Online")
         .get()
         .then((value) {
       setState(() {
-        userMap = value.docs[0].data();
-
+        userList.length = value.docs.length;
+        itemCountNum = value.docs.length;
+        for (int i = 0; i < value.docs.length; i++) {
+          userList[i] = (value.docs[i].data());
+        }
         isLoading = false;
       });
-      print(userMap);
+      //print(userMap);
     });
+  }
+
+  void onSearch() async {
+    if(_search.text =="")
+      {
+        onStart();
+      }
+    else {
+      FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+      setState(() {
+        isLoading = true;
+      });
+
+      await _firestore
+          .collection('users')
+          .where("name", isEqualTo: _search.text)
+          .get()
+          .then((value) {
+        setState(() {
+          userList[0] = value.docs[0].data();
+          itemCountNum = value.docs.length;
+          // for (int i = 0; i < value.docs.length; i++) {
+          //   userList.add(value.docs[i].data());
+          //   print(value.docs[i].data());
+          // }
+
+          isLoading = false;
+        });
+        //print(userMap);
+      });
+    }
   }
 
   @override
@@ -88,26 +125,34 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           children: [
             Text("온라인동기"),
             IconButton(
-              icon: const Icon(Icons.settings, size: 18, color: Colors.white,),
+              icon: const Icon(
+                Icons.settings,
+                size: 18,
+                color: Colors.white,
+              ),
               onPressed: () => appState.currentAction = PageAction(
                   state: PageState.addPage, page: SettingsPageConfig),
             ),
           ],
         ),
-        backgroundColor: Colors.red[900],
+        backgroundColor: kPrimaryColor,
         // actions: [
         //   IconButton(icon: Icon(Icons.logout), onPressed: () => logOut(context))
         // ],
       ),
-      body: isLoading
-          ? Center( //로딩중일때는 서클 인디케이터 도시해라. 어느정도 돌고나서는 되돌아 와야하는데..
-              child: Container(
-                height: size.height / 20,
-                width: size.height / 20,
-                child: CircularProgressIndicator(),
-              ),
-            )
-          : Column( //로딩중이 아니라면 아래를 도시해라.
+      body:
+      // isLoading
+      //     ? Center(
+      //         //로딩중일때는 서클 인디케이터 도시해라. 어느정도 돌고나서는 되돌아 와야하는데..
+      //         child: Container(
+      //           height: size.height / 20,
+      //           width: size.height / 20,
+      //           child: CircularProgressIndicator(),
+      //         ),
+      //       )
+      //     :
+      Column(
+              //로딩중이 아니라면 아래를 도시해라.
               children: [
                 SizedBox(
                   height: size.height / 20,
@@ -133,42 +178,50 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 SizedBox(
                   height: size.height / 50,
                 ),
-                ElevatedButton( // 찾기 버튼
+                ElevatedButton(
+                  // 찾기 버튼
                   onPressed: onSearch, //onSearch 실행
                   child: Text("Search"),
                 ),
-                SizedBox(
-                  height: size.height / 30,
-                ),
+                // SizedBox(
+                //   height: size.height / 30,
+                // ),
+               Expanded(
+                 child: ListView.builder(
+                   itemCount: itemCountNum,
+                   itemBuilder: (BuildContext context, int index){
+                     return ListTile(
+                       onTap: () {
+                         String roomId = chatRoomId(
+                             _auth.currentUser.displayName, userList[index]['name']);
+
+                         Navigator.of(context).push(
+                           MaterialPageRoute(
+                             builder: (_) => ChatRoom(
+                               chatRoomId: roomId,
+                               userMap: userList[index],
+                             ),
+                           ),
+                         );
+                       },
+                       leading: Icon(Icons.account_box, color: Colors.black),
+                       title: Text(
+                         userList[index]['name'],
+                         style: TextStyle(
+                           color: Colors.black,
+                           fontSize: 17,
+                           fontWeight: FontWeight.w500,
+                         ),
+                       ),
+                       subtitle: Text(userList[index]['email']),
+                       trailing: Icon(Icons.chat, color: Colors.black),
+                     );
+
+                   }
+                 ),
+               ),
 
 
-                userMap != null
-                    ? ListTile(
-                        onTap: () {
-                          String roomId = chatRoomId(_auth.currentUser.displayName, userMap['name']);
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ChatRoom(
-                                chatRoomId: roomId,
-                                userMap: userMap,
-                              ),
-                            ),
-                          );
-                        },
-                        leading: Icon(Icons.account_box, color: Colors.black),
-                        title: Text(
-                          userMap['name'],
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(userMap['email']),
-                        trailing: Icon(Icons.chat, color: Colors.black),
-                      )
-                    : Container(),
               ],
             ),
     );

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:overlock/ui/Poll/pollResult.dart';
 
+import '../../constants.dart';
+
 
 class pollPages extends StatefulWidget {
 
@@ -20,7 +22,7 @@ class _pollPagesState extends State<pollPages> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.pollName), backgroundColor: Colors.red[900],),
+      appBar: AppBar(title: Text(widget.pollName), backgroundColor: kPrimaryColor,),
       body: _buildBody(context),
       );
   }

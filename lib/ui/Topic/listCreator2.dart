@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../app_state.dart';
+import '../WritePage.dart';
 import '../details.dart';
 
 
@@ -31,8 +32,9 @@ class listCreator2 extends StatelessWidget {
   new ScrollController(); // set controller on scrolling
   bool isScrollingDown = false;
   bool _show = true;
-  double bottomBarHeight = 50; // set bottom bar height
+  double bottomBarHeight = 130; // set bottom bar height
   double _bottomBarOffset = 0;
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,181 +42,205 @@ class listCreator2 extends StatelessWidget {
     final size = query.size;
     final appState = Provider.of<AppState>(context, listen: false);
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: ListView(
-        children: <Widget>[
-          Container(
-            height: size.height - bottomBarHeight,
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection(colName)
-                  .orderBy(fnDatetime, descending: true)
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) return Text("Error: ${snapshot.error}");
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return Scaffold(
-                      backgroundColor: Colors.grey[200],
-                    );
-                  default:
-                    return ListView(
-                      shrinkWrap: true,
-                      children:
-                      snapshot.data.docs.map((DocumentSnapshot document) {
-                        Timestamp ts = document[fnDatetime];
-                        String dt = timestampToStrDateTime(ts);
-                        String ShortDt = dt.substring(0, 10);
-                        String username = document[userID];
-                        return Card(
-                          elevation: 1,
-                          child: InkWell(
-                            // Read Document
-                            onTap: () {
-                              appState.currentAction = PageAction(
-                                  state: PageState.addPage,
-                                  widget: Details(document.id, colName),
-                                  page: DetailsPageConfig);
+        backgroundColor: Colors.grey[200],
+        body: ListView(
+          children: <Widget>[
+            Container(
+              height: size.height - bottomBarHeight,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection(colName)
+                    .orderBy(fnDatetime, descending: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) return Text("Error: ${snapshot.error}");
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                      return Scaffold(
+                        backgroundColor: Colors.grey[200],
+                      );
+                    default:
+                      return ListView(
+                        shrinkWrap: true,
+                        children:
+                        snapshot.data.docs.map((DocumentSnapshot document) {
+                          Timestamp ts = document[fnDatetime];
+                          String dt = timestampToStrDateTime(ts);
+                          String ShortDt = dt.substring(0, 10);
+                          String username = document[userID];
+                          return Card(
+                            elevation: 1,
+                            child: InkWell(
+                              // Read Document
+                              onTap: () {
+                                appState.currentAction = PageAction(
+                                    state: PageState.addPage,
+                                    widget: Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
+                                    //widget: detail2(document[fnName], document[userID], document[fnDescription], document.id, colName ),
+                                    page: DetailsPageConfig);
+                                int view = document["pageView"];
+                                view++;
+                                FirebaseFirestore.instance.collection(colName).doc(document.id).update({
+                                  "pageView" : view
+                                });
 
-                              // showDocument(document.id, appState);
-                            },
-                            // Update or Delete Document
-                            onLongPress: () {
-                              showUpdateOrDeleteDocDialog(document, context);
-                            },
-                            child: Container(
-                              //height: size.height * 0.3,
-                              // padding: const EdgeInsets.only(top: 10),
-                              child: Column(
-                                children: <Widget>[
-                                  Column(children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        //bottom: 8.0,
-                                          left: 12,
-                                          right: 12),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          SizedBox(
-                                            width: size.width*0.7,
-                                            child: Text(document[fnName].toString(),
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline6
-                                                  .copyWith(
-                                                color: Colors.black,
-                                              ), overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ),
-                                          IconButton(
-                                              icon: Icon(Icons.more_vert,
-                                                  size: 17, color: Colors.grey),
-                                              onPressed: () {})
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 8.0,
-                                          left: 15,
-                                          right: 15),
-                                      child: Container(
-                                        height: 70,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          document[fnDescription],
-                                          style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 16, letterSpacing: 0.2, height: 1.2
-                                          ),overflow: TextOverflow.ellipsis,
-                                          maxLines: 4,
-                                        ),
-                                      ),
-                                    ),
-                                  ]),
-                                  Column(
-                                    children: [
+                                // showDocument(document.id, appState);
+                              },
+                              // Update or Delete Document
+                              onLongPress: () {
+                                showUpdateOrDeleteDocDialog(document, context);
+                              },
+                              child: Container(
+                                //height: size.height * 0.3,
+                                // padding: const EdgeInsets.only(top: 10),
+                                child: Column(
+                                  children: <Widget>[
+                                    Column(children: [
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                            left: 15, right: 15),
+                                          //bottom: 8.0,
+                                            left: 12,
+                                            right: 12),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            SizedBox(
+                                              width: size.width*0.7,
+                                              child: Text(document[fnName].toString(),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headline6
+                                                    .copyWith(
+                                                  color: Colors.black,
+                                                ), overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            IconButton(
+                                                icon: Icon(Icons.more_vert,
+                                                    size: 17, color: Colors.grey),
+                                                onPressed: () {})
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                            bottom: 8.0,
+                                            left: 15,
+                                            right: 15),
                                         child: Container(
-                                          alignment: Alignment.bottomLeft,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(document[userID],
-                                                  style: TextStyle(
-                                                    color: Colors.red[900],
-                                                    fontSize: 14,
-                                                  )),
-                                            ],
+                                          height: 58,
+                                          alignment: Alignment.topLeft,
+                                          child: Text(
+                                            document[fnDescription],
+                                            style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 16, letterSpacing: 0.2, height: 1.2
+                                            ),overflow: TextOverflow.ellipsis,
+                                            maxLines: 4,
                                           ),
                                         ),
                                       ),
-                                      //Divider(),
-                                      SizedBox(
-                                        height: 30,
-                                        child: Padding(
+                                    ]),
+                                    Column(
+                                      children: [
+                                        Padding(
                                           padding: const EdgeInsets.only(
-                                              top:8.0, bottom: 8.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(
-                                                    Icons.view_agenda,
-                                                    size: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                  label: Text("900")),
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(
-                                                      Icons.favorite_border,
-                                                      size: 12,
-                                                      color: Colors.grey),
-                                                  label: Text("500")),
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(Icons.add_comment,
-                                                      size: 12,
-                                                      color: Colors.grey),
-                                                  label: Text("20")),
-                                              Text(
-                                                dt.substring(2, 16).toString(),
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ],
+                                              left: 15, right: 15),
+                                          child: Container(
+                                            alignment: Alignment.bottomLeft,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(document[userID],
+                                                    style: TextStyle(
+                                                      color: kPrimaryColor,
+                                                      fontSize: 14,
+                                                    )),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  )
-                                ],
+                                        //Divider(),
+                                        SizedBox(
+                                          height: 30,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                top:8.0, bottom: 8.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                FlatButton.icon(
+                                                    onPressed: () {},
+                                                    icon: Icon(
+                                                      Icons.view_agenda,
+                                                      size: 12,
+                                                      color: Colors.grey,
+                                                    ),
+                                                    label: Text(document["pageView"].toString())),
+                                                FlatButton.icon(
+                                                    onPressed: () {},
+                                                    icon: Icon(
+                                                        Icons.favorite_border,
+                                                        size: 12,
+                                                        color: Colors.grey),
+                                                    label: Text(document["likes"].toString())),
+                                                FlatButton.icon(
+                                                    onPressed: () {},
+                                                    icon: Icon(Icons.add_comment,
+                                                        size: 12,
+                                                        color: Colors.grey),
+                                                    label: Text(document["replys"].toString())),
+                                                Text(
+                                                  dt.substring(2, 16).toString(),
+                                                  style: TextStyle(
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        );
-                      }).toList(),
-                    );
-                }
-              },
-            ),
-          )
-        ],
-      ),
+                          );
+                        }).toList(),
+                      );
+                  }
+                },
+              ),
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed:
+          //   () {
+          // appState.currentAction = PageAction(
+          //   state: PageState.addPage,
+          //   widget: WritePage(colName));},
+
+
+
+
+              ()=>  Navigator.push( context, MaterialPageRoute( builder: (context) => WritePage(colName)),),
+          // onPressed: () => appState.currentAction =
+          //     PageAction(state: PageState.addPage, page: CartPageConfig),
+
+          backgroundColor: kPrimaryColor,
+        )
     );
     // Create Document
+
   }
 
   /// Firestore CRUD Logic
@@ -237,13 +263,11 @@ class listCreator2 extends StatelessWidget {
         .then((doc) {
       showReadDocSnackBar(doc, appState);
     });
-
   }
-  void showReadDocSnackBar(DocumentSnapshot doc, appState) {
 
+  void showReadDocSnackBar(DocumentSnapshot doc, appState) {
     appState.currentAction = PageAction(
-        state: PageState.addWidget,
-        widget: Details(doc.id, colName),
+        state: PageState.addPage,
         page: DetailsPageConfig);
   }
 
@@ -309,6 +333,7 @@ class listCreator2 extends StatelessWidget {
         );
       },
     );
+
   }
 
   void showUpdateOrDeleteDocDialog(DocumentSnapshot doc, context) {
@@ -362,13 +387,18 @@ class listCreator2 extends StatelessWidget {
               },
             )
           ],
+
         );
+
       },
+
     );
+
   }
 
   String timestampToStrDateTime(Timestamp ts) {
     return DateTime.fromMicrosecondsSinceEpoch(ts.microsecondsSinceEpoch)
         .toString();
   }
+
 }

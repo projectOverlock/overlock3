@@ -1,0 +1,68 @@
+read -> get, list
+
+write -> create, update, delete
+
+리소스는 두가지가 있다.
+클라이언트에서오는거
+서버에서 오는거
+
+클라이언트에서 오는리소스는 auth.
+
+request.auth 로 uid token 등 접근간으
+
+그리고 resource는 data 등등 접근이가능하다
+
+파이어베이스(서버)자체의 리소스는 data 가 있다.
+작성한 자만이 글을 수정할 수 있도록 하는 것들
+
+match/users{restOfPath=**}{
+allow read;
+}
+
+
+
+
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.7,
+                              child: TextField(
+                                autofocus: false,
+                                decoration:
+                                    InputDecoration(labelText: "댓글을 작성하세요"),
+                                controller: _message,
+                              ),
+                            ),
+                            TextButton(
+                              child: Text("Create"),
+                              onPressed: () {
+                                if (_message.text.isNotEmpty) {
+                                  onSendMessage();
+                                }
+                                _message.clear();
+                              },
+                            ),
+                          ],
+                        )
+
+
+
+
+ void onSendMessage() async {
+    if (_message.text.isNotEmpty) {
+      Map<String, dynamic> messages = {
+        "sendby": FirebaseAuth.instance.currentUser.displayName,
+        "message": _message.text,
+        "time": FieldValue.serverTimestamp(),
+      };
+
+      _message.clear();
+      await FirebaseFirestore.instance
+          .collection(widget.colname)
+          .doc(widget.id)
+          .collection('reply')
+          .add(messages);
+    } else {
+      print("Enter Some Text");
+    }
+  }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:overlock/constants.dart';
 import 'package:overlock/router/ui_pages.dart';
+import 'package:overlock/ui/sowon/soWonExample.dart';
 import 'package:provider/provider.dart';
 
 import '../../app_state.dart';
@@ -22,7 +23,7 @@ class _soWonMainState extends State<soWonMain> {
     final appState = Provider.of<AppState>(context, listen: false);
 
     return DefaultTabController(
-        length: 4,
+        length: 2,
         child: Scaffold(
             appBar: AppBar(
               elevation: 0,
@@ -33,30 +34,19 @@ class _soWonMainState extends State<soWonMain> {
                   Tab(
                     text: "전체",
                   ),
+
                   Tab(
-                    text: "분야별",
+                    text: "처벌사례",
                   ),
-                  Tab(
-                    text: "답변대기",
-                  ),
-                  Tab(
-                    text: "답변완료",
-                  ),
+
                 ],
               ),
             ),
             body: TabBarView(children: [
               soWonList(),
-              Icon(Icons.directions_transit),
-              Icon(Icons.directions_bike),
-              Icon(Icons.directions_car),
+              soWonExample(),
+
             ]),
-            floatingActionButton: FloatingActionButton(
-              child: Icon(Icons.add),
-              //onPressed: showCreateDocDialog,
-              onPressed: () => appState.currentAction =
-                  PageAction(state: PageState.addPage, page: WriteSoWonPageConfig),
-              backgroundColor: kPrimaryColor,
-            )));
+           ));
   }
 }

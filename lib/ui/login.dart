@@ -143,12 +143,12 @@ class _LoginState extends State<Login> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.red[900],
+                          primary: kPrimaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                           side: BorderSide(
-                            color: Colors.red[900],
+                            color: kPrimaryColor,
                           ),
                         ),
                         // onPressed: () {
@@ -198,7 +198,7 @@ class _LoginState extends State<Login> {
   TextFormField buildTextFormField(
       String labelText, TextEditingController controller, bool isPassword) {
     return TextFormField(
-        cursorColor: Colors.red[900],
+        cursorColor: kPrimaryColor,
         obscureText: isPassword ? true : false,
         controller: controller,
         style: TextStyle(color: Colors.black),
@@ -208,11 +208,11 @@ class _LoginState extends State<Login> {
           fillColor: Colors.black45,
           border: _border,
           errorBorder: _border.copyWith(
-              borderSide: BorderSide(color: Colors.red[900], width: 2)),
+              borderSide: BorderSide(color: kPrimaryColor, width: 2)),
           enabledBorder: _border.copyWith(
               borderSide: BorderSide(color: Colors.grey, width: 1)),
           focusedBorder: _border.copyWith(
-              borderSide: BorderSide(color: Colors.red[900], width: 1)),
+              borderSide: BorderSide(color: kPrimaryColor, width: 1)),
           errorStyle:
               TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           hintStyle: TextStyle(color: Colors.black),

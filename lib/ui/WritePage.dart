@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:overlock/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../constants.dart';
-
 
 // 컬렉션명
 String colName = "계급";
@@ -22,21 +20,23 @@ String id = '';
 String nickname = 'default';
 SharedPreferences prefs;
 final _valueList = ['꿀팁', '취미', '계급', '유머', '제작'];
-var _selectedValue = '계급';
-class Cart extends StatefulWidget {
 
+class WritePage extends StatefulWidget {
+  WritePage(this.colboardName);
 
- @override
-  _CartState createState() => _CartState();
+  String colboardName;
+
+  @override
+  _WritePageState createState() => _WritePageState();
 }
 
-class _CartState extends State<Cart> {
-  @override
+class _WritePageState extends State<WritePage> {
   TextEditingController _newNameCon = TextEditingController();
   TextEditingController _newDescCon = TextEditingController();
 
-
   Widget build(BuildContext context) {
+    var _selectedValue = widget.colboardName;
+
     FirebaseFirestore.instance
         .collection('users')
         .doc(firebaseAuth.currentUser.uid.toString())
@@ -49,11 +49,37 @@ class _CartState extends State<Cart> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: kPrimaryColor,
-        title: const Text(
-          '새글 작성',
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
+        title: DropdownButton(
+          isExpanded: true,
+          value: _selectedValue,
+          items: _valueList.map((value) {
+            return DropdownMenuItem(
+                value: value,
+                child: Container(
+                  alignment: Alignment.center,
+                  color: kPrimaryColor,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        letterSpacing: 0.2,
+                        height: 1.2),
+                  ),
+                ));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedValue = value;
+              widget.colboardName = value;
+            });
+          },
         ),
+        // const Text(
+        //   '새글 작성',
+        //   style: TextStyle(
+        //       fontSize: 20, fontWeight: FontWeight.w500, color: Colors.white),
+        // ),
         actions: [
           IconButton(
             icon: const Icon(Icons.my_library_add),
@@ -76,19 +102,6 @@ class _CartState extends State<Cart> {
             children: [
               Column(
                 children: <Widget>[
-                  DropdownButton(
-                    isExpanded: true,
-                    value: _selectedValue,
-                    items: _valueList.map((value) {
-                      return DropdownMenuItem(value: value, child: Text(value));
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedValue = value;
-                        colName = value;
-                      });
-                    },
-                  ),
                   TextField(
                     autofocus: true,
                     decoration: InputDecoration(labelText: "제목을 작성하세요"),
@@ -98,6 +111,8 @@ class _CartState extends State<Cart> {
                     maxLines: 10,
                     decoration: InputDecoration(
                       labelText: "내용을 작성하세요",
+                      hintStyle: TextStyle(
+                          fontSize: 18, letterSpacing: 0.2, height: 1.2),
                     ),
                     controller: _newDescCon,
                   )
@@ -135,16 +150,14 @@ class _CartState extends State<Cart> {
   }
 
   void createDoc(String name, String description, String nk) {
-    FirebaseFirestore.instance.collection(colName).add({
+    FirebaseFirestore.instance.collection(widget.colboardName).add({
       fnName: name,
       fnDescription: description,
       fnDatetime: Timestamp.now(),
       userID: nk,
-      pageView : 0,
-      likes : 0,
-      replys : 0
-
-
+      pageView: 0,
+      likes: 0,
+      replys: 0
     });
   }
 }

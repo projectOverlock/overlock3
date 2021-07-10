@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:stacked_card_carousel/stacked_card_carousel.dart';
 
 import '../../app_state.dart';
+import '../../constants.dart';
 import 'pollPages.dart';
 
 class stackedCardMain extends StatelessWidget {
@@ -59,7 +60,7 @@ class stackedCardMain extends StatelessWidget {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("온라인동기"),
+            Text("투표"),
             IconButton(
               icon: const Icon(Icons.settings, size: 18, color: Colors.white,),
               onPressed: () => appState.currentAction = PageAction(
@@ -67,7 +68,7 @@ class stackedCardMain extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: Colors.red[900],
+        backgroundColor: kPrimaryColor,
       ),
       body: StackedCardCarousel(
         initialOffset: 0,

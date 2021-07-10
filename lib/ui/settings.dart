@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:overlock/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -24,7 +25,7 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.red[900],
+        backgroundColor: kPrimaryColor,
         title: const Text(
           'Settings',
           style: TextStyle(
@@ -211,7 +212,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                         strokeWidth: 2.0,
                                         valueColor:
                                             AlwaysStoppedAnimation<Color>(
-                                                Colors.red[900]),
+                                                kPrimaryColor),
                                       ),
                                       width: 90.0,
                                       height: 90.0,
@@ -245,7 +246,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       IconButton(
                         icon: Icon(
                           Icons.camera_alt,
-                          color: Colors.red[900].withOpacity(0.5),
+                          color: kPrimaryColor.withOpacity(0.5),
                         ),
                         onPressed: getImage,
                         padding: EdgeInsets.all(30.0),
@@ -297,7 +298,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       style: TextStyle(
                           fontStyle: FontStyle.italic,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red[900]),
+                          color: kPrimaryColor),
                     ),
                     margin: EdgeInsets.only(left: 10.0, bottom: 5.0, top: 10.0),
                   ),
@@ -306,7 +307,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     child: Theme(
                       data: Theme.of(context)
-                          .copyWith(primaryColor: Colors.red[900]),
+                          .copyWith(primaryColor: kPrimaryColor),
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: nickname.toString(),
@@ -323,36 +324,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     margin: EdgeInsets.only(left: 30.0, right: 30.0),
                   ),
 
-                  // About me
-                  // Container(
-                  //   child: Text(
-                  //     'About me',
-                  //     style: TextStyle(
-                  //         fontStyle: FontStyle.italic,
-                  //         fontWeight: FontWeight.bold,
-                  //         color: Colors.red[900]),
-                  //   ),
-                  //   margin: EdgeInsets.only(left: 10.0, top: 30.0, bottom: 5.0),
-                  // ),
-                  // Container(
-                  //   child: Theme(
-                  //     data: Theme.of(context)
-                  //         .copyWith(primaryColor: Colors.red[900]),
-                  //     child: TextField(
-                  //       decoration: InputDecoration(
-                  //         hintText: 'Fun, like travel and play PES...',
-                  //         contentPadding: EdgeInsets.all(5.0),
-                  //         hintStyle: TextStyle(color: Colors.grey),
-                  //       ),
-                  //       controller: controllerAboutMe,
-                  //       onChanged: (value) {
-                  //         aboutMe = value;
-                  //       },
-                  //       focusNode: focusNodeAboutMe,
-                  //     ),
-                  //   ),
-                  //   margin: EdgeInsets.only(left: 30.0, right: 30.0),
-                  // ),
+
                 ],
                 crossAxisAlignment: CrossAxisAlignment.start,
               ),
@@ -382,7 +354,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   child: Center(
                     child: CircularProgressIndicator(
                         valueColor:
-                            AlwaysStoppedAnimation<Color>(Colors.red[900])),
+                            AlwaysStoppedAnimation<Color>(kPrimaryColor)),
                   ),
                   color: Colors.white.withOpacity(0.8),
                 )

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/painting.dart';
+import 'package:overlock/constants.dart';
 import 'package:overlock/router/ui_pages.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -142,7 +143,7 @@ class _mainListState extends State<mainList> {
                                               children: [
                                                 Text(document[userID],
                                                     style: TextStyle(
-                                                      color: Colors.red[900],
+                                                      color: kPrimaryColor,
                                                       fontSize: 15,
                                                     )),
                                                 Text(
@@ -207,7 +208,7 @@ class _mainListState extends State<mainList> {
           //onPressed: showCreateDocDialog,
           onPressed: () => appState.currentAction =
               PageAction(state: PageState.addPage, page: CartPageConfig),
-          backgroundColor: Colors.red[900],
+          backgroundColor: kPrimaryColor,
         ));
     // Create Document
   }

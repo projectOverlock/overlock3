@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
+
 class ChatRoom extends StatelessWidget {
   final Map<String, dynamic> userMap;
   final String chatRoomId;
@@ -17,7 +19,7 @@ class ChatRoom extends StatelessWidget {
       Map<String, dynamic> messages = {
         "sendby": _auth.currentUser.displayName,
         "message": _message.text,
-        "time": FieldValue.serverTimestamp(),
+        "time":  DateTime.now(),
       };
 
       _message.clear();
@@ -37,8 +39,7 @@ class ChatRoom extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red[900],
-
+        backgroundColor: kPrimaryColor,
         title: StreamBuilder<DocumentSnapshot>(
           stream:
               _firestore.collection("users").doc(userMap['uid']).snapshots(),
@@ -65,6 +66,7 @@ class ChatRoom extends StatelessWidget {
         child: Column(
           children: [
             Container(
+              color: Colors.white,
               height: size.height / 1.25,
               width: size.width,
               child: StreamBuilder<QuerySnapshot>(
@@ -132,24 +134,74 @@ class ChatRoom extends StatelessWidget {
       alignment: map['sendby'] == _auth.currentUser.displayName
           ? Alignment.centerRight
           : Alignment.centerLeft,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: map['sendby'] == _auth.currentUser.displayName
-              ? Colors.blue
-              : Colors.grey,
-
-        ),
-        child: Text(
-          map['message'],
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
+      child: Row(
+        mainAxisAlignment: map['sendby'] == _auth.currentUser.displayName
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 25.0),
+            child: map['sendby'] != _auth.currentUser.displayName
+                ? Text("")
+                : Text(
+                    DateTime.fromMicrosecondsSinceEpoch(
+                            map["time"].microsecondsSinceEpoch)
+                        .toString()
+                        .substring(11, 16),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
           ),
-        ),
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 0.5,
+                    blurRadius: 0.5,
+                    offset: Offset(2, 2), // changes position of shadow
+                  ),
+                ],
+                borderRadius: BorderRadius.circular(15),
+                color: map['sendby'] == _auth.currentUser.displayName
+                    ? kPrimaryColor
+                    : Colors.grey[200],
+              ),
+              child: Text(
+                map['message'],
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: map['sendby'] == _auth.currentUser.displayName
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 25.0),
+            child: map['sendby'] == _auth.currentUser.displayName
+                ? Text("")
+                : Text(
+                    DateTime.fromMicrosecondsSinceEpoch(
+                            map["time"].microsecondsSinceEpoch)
+                        .toString()
+                        .substring(11, 16),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:overlock/router/ui_pages.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../app_state.dart';
+import '../../constants.dart';
 import '../details.dart';
 
 class soWonList extends StatefulWidget {
@@ -25,6 +26,7 @@ class _soWonListState extends State<soWonList> {
   final String fnDatetime = "datetime";
   final String recomand = "Recomand";
   final String fnCatagory = "Catagory";
+  final String userID = "userID";
 
   TextEditingController _newNameCon = TextEditingController();
   TextEditingController _newDescCon = TextEditingController();
@@ -79,8 +81,14 @@ class _soWonListState extends State<soWonList> {
                             onTap: () {
                               appState.currentAction = PageAction(
                                   state: PageState.addPage,
-                                  widget: Details(document.id, colName),
-                                  page: DetailsPageConfig);                            },
+                                  widget:  Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
+                                  page: DetailsPageConfig);
+                              int view = document["pageView"];
+                              view++;
+                              FirebaseFirestore.instance.collection(colName).doc(document.id).update({
+                                "pageView" : view
+                              });
+                              },
                             // Update or Delete Document
                             onLongPress: () {
                               showUpdateOrDeleteDocDialog(document);
@@ -142,7 +150,7 @@ class _soWonListState extends State<soWonList> {
                                                 ),
                                               ),
                                               Text(
-                                                  document[recomand]
+                                                  document["likes"]
                                                           .toString() +
                                                       " 명",
                                                   style: TextStyle(
@@ -193,6 +201,13 @@ class _soWonListState extends State<soWonList> {
           )
         ],
       ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          //onPressed: showCreateDocDialog,
+          onPressed: () => appState.currentAction =
+              PageAction(state: PageState.addPage, page: WriteSoWonPageConfig),
+          backgroundColor: kPrimaryColor,
+        )
     );
     // Create Document
   }

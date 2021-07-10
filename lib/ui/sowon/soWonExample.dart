@@ -2,23 +2,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:overlock/router/ui_pages.dart';
-import 'package:overlock/ui/cart.dart';
+import 'package:overlock/ui/sowon/WriteExample.dart';
 import 'package:provider/provider.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../app_state.dart';
 import '../../constants.dart';
-import '../WritePage.dart';
 import '../details.dart';
 
-class listLevel extends StatelessWidget {
-  final String colName = "계급";
+
+class soWonExample extends StatefulWidget {
+
+  @override
+  _soWonExampleState createState() => _soWonExampleState();
+}
+
+class _soWonExampleState extends State<soWonExample> {
+
+  // 컬렉션명
+  final String colName = "처벌사례";
 
   // 필드명
   final String fnName = "name";
   final String fnDescription = "description";
   final String fnDatetime = "datetime";
+  final String recomand = "Recomand";
+  final String fnCatagory = "Catagory";
   final String userID = "userID";
 
   TextEditingController _newNameCon = TextEditingController();
@@ -26,18 +35,25 @@ class listLevel extends StatelessWidget {
   TextEditingController _undNameCon = TextEditingController();
   TextEditingController _undDescCon = TextEditingController();
 
+  bool _showAppbar = true; //this is to show app bar
   ScrollController _scrollBottomBarController =
-      new ScrollController(); // set controller on scrolling
+  new ScrollController(); // set controller on scrolling
   bool isScrollingDown = false;
+  bool _show = true;
   double bottomBarHeight = 130; // set bottom bar height
+  double _bottomBarOffset = 0;
 
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
     final size = query.size;
+    final itemWidth = size.width;
+    final itemHeight = itemWidth * (size.width / size.height);
     final appState = Provider.of<AppState>(context, listen: false);
+    FirebaseAuth auth = FirebaseAuth.instance;
+
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: ListView(
         children: <Widget>[
           Container(
@@ -52,89 +68,66 @@ class listLevel extends StatelessWidget {
                 if (snapshot.hasError) return Text("Error: ${snapshot.error}");
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
-                    return Scaffold(
-                      backgroundColor: Colors.grey[200],
-                    );
+                    return Text("Loading...");
                   default:
                     return ListView(
-                      shrinkWrap: true,
                       children:
-                          snapshot.data.docs.map((DocumentSnapshot document) {
+                      snapshot.data.docs.map((DocumentSnapshot document) {
                         Timestamp ts = document[fnDatetime];
                         String dt = timestampToStrDateTime(ts);
                         String ShortDt = dt.substring(0, 10);
-                        String username = document[userID];
                         return Card(
-                          elevation: 1,
+                          elevation: 0.1,
                           child: InkWell(
                             // Read Document
                             onTap: () {
                               appState.currentAction = PageAction(
                                   state: PageState.addPage,
-                                  widget: Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
-                                  //widget: detail2(document[fnName], document[userID], document[fnDescription], document.id, colName ),
+                                  widget:  Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
                                   page: DetailsPageConfig);
                               int view = document["pageView"];
                               view++;
                               FirebaseFirestore.instance.collection(colName).doc(document.id).update({
                                 "pageView" : view
                               });
-
-                              // showDocument(document.id, appState);
                             },
                             // Update or Delete Document
                             onLongPress: () {
-                              showUpdateOrDeleteDocDialog(document, context);
+                              showUpdateOrDeleteDocDialog(document);
                             },
                             child: Container(
                               //height: size.height * 0.3,
                               // padding: const EdgeInsets.only(top: 10),
                               child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(document[fnCatagory],
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 17,
+                                        )),
+                                  ),
                                   Column(children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                          //bottom: 8.0,
-                                          left: 12,
-                                          right: 12),
+                                      padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          SizedBox(
-                                            width: size.width*0.7,
-                                            child: Text(document[fnName].toString(),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline6
-                                                    .copyWith(
-                                                      color: Colors.black,
-                                                    ), overflow: TextOverflow.ellipsis,
+                                          Flexible(
+                                            child: Text(
+                                              document[fnName].toString(),
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 20,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          IconButton(
-                                              icon: Icon(Icons.more_vert,
-                                                  size: 17, color: Colors.grey),
-                                              onPressed: () {})
                                         ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          bottom: 8.0,
-                                          left: 15,
-                                          right: 15),
-                                      child: Container(
-                                        height: 58,
-                                        alignment: Alignment.topLeft,
-                                        child: Text(
-                                          document[fnDescription],
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                             fontSize: 16, letterSpacing: 0.2, height: 1.2
-                                          ),overflow: TextOverflow.ellipsis,
-                                          maxLines: 4,
-                                        ),
                                       ),
                                     ),
                                   ]),
@@ -142,65 +135,59 @@ class listLevel extends StatelessWidget {
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                            left: 15, right: 15),
+                                            left: 8.0, right: 18, bottom: 8),
                                         child: Container(
                                           alignment: Alignment.bottomLeft,
                                           child: Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                            MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text(document[userID],
+                                              Text(
+                                                "~ " +
+                                                    dt
+                                                        .substring(2, 16)
+                                                        .toString(),
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              Text(
+                                                  document["likes"]
+                                                      .toString() +
+                                                      " 명",
                                                   style: TextStyle(
-                                                    color: kPrimaryColor,
-                                                    fontSize: 14,
+                                                    color: Colors.blue,
+                                                    fontSize: 15,
                                                   )),
                                             ],
                                           ),
                                         ),
                                       ),
-                                      //Divider(),
-                                      SizedBox(
-                                        height: 30,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              top:8.0, bottom: 8.0),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: <Widget>[
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(
-                                                    Icons.view_agenda,
-                                                    size: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                  label: Text(document["pageView"].toString())),
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(
-                                                      Icons.favorite_border,
-                                                      size: 12,
-                                                      color: Colors.grey),
-                                                  label: Text(document["likes"].toString())),
-                                              FlatButton.icon(
-                                                  onPressed: () {},
-                                                  icon: Icon(Icons.add_comment,
-                                                      size: 12,
-                                                      color: Colors.grey),
-                                                  label: Text(document["replys"].toString())),
-                                              Text(
-                                                dt.substring(2, 16).toString(),
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
+                                      // Row(
+                                      //   children: <Widget>[
+                                      //     FlatButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: Icon(
+                                      //           Icons.view_agenda,
+                                      //           size: 15,
+                                      //           color: Colors.grey,
+                                      //         ),
+                                      //         label: Text("1000")),
+                                      //     FlatButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: Icon(
+                                      //             Icons.favorite_border,
+                                      //             size: 15,
+                                      //             color: Colors.grey),
+                                      //         label: Text("500")),
+                                      //     FlatButton.icon(
+                                      //         onPressed: () {},
+                                      //         icon: Icon(Icons.add_comment,
+                                      //             size: 15,
+                                      //             color: Colors.grey),
+                                      //         label: Text("20")),
+                                      //   ],
+                                      // )
                                     ],
                                   )
                                 ],
@@ -219,12 +206,11 @@ class listLevel extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
           onPressed:
-            ()=>  Navigator.push( context, MaterialPageRoute( builder: (context) => WritePage(colName)),),
+              ()=>  Navigator.push( context, MaterialPageRoute( builder: (context) => writeExample()),),
           backgroundColor: kPrimaryColor,
         )
     );
     // Create Document
-
   }
 
   /// Firestore CRUD Logic
@@ -239,20 +225,12 @@ class listLevel extends StatelessWidget {
   }
 
 // 문서 조회 (Read)
-  void showDocument(String documentID, appState) {
+  void showDocument(String documentID) {
     FirebaseFirestore.instance
         .collection(colName)
         .doc(documentID)
         .get()
-        .then((doc) {
-      showReadDocSnackBar(doc, appState);
-    });
-  }
-
-  void showReadDocSnackBar(DocumentSnapshot doc, appState) {
-    appState.currentAction = PageAction(
-        state: PageState.addPage,
-        page: DetailsPageConfig);
+        .then((doc) {});
   }
 
 // 문서 갱신 (Update)
@@ -264,12 +242,11 @@ class listLevel extends StatelessWidget {
   }
 
 // 문서 삭제 (Delete)
-
   void deleteDoc(String docID) {
     FirebaseFirestore.instance.collection(colName).doc(docID).delete();
   }
 
-  void showCreateDocDialog(context) {
+  void showCreateDocDialog() {
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -320,7 +297,7 @@ class listLevel extends StatelessWidget {
 
   }
 
-  void showUpdateOrDeleteDocDialog(DocumentSnapshot doc, context) {
+  void showUpdateOrDeleteDocDialog(DocumentSnapshot doc) {
     _undNameCon.text = doc[fnName];
     _undDescCon.text = doc[fnDescription];
     showDialog(
@@ -371,18 +348,13 @@ class listLevel extends StatelessWidget {
               },
             )
           ],
-
         );
-
       },
-
     );
-
   }
 
   String timestampToStrDateTime(Timestamp ts) {
     return DateTime.fromMicrosecondsSinceEpoch(ts.microsecondsSinceEpoch)
         .toString();
   }
-
 }

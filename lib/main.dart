@@ -8,7 +8,6 @@ import 'package:uni_links/uni_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'app_state.dart';
-import 'router/back_dispatcher.dart';
 import 'router/router_delegate.dart';
 import 'router/shopping_parser.dart';
 import 'router/ui_pages.dart';

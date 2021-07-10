@@ -26,14 +26,7 @@ class _boardContolState extends State<boardContol> {
   @override
   Widget build(BuildContext context) {
 
-    final index = DefaultTabController.of(context).index;
-    Provider<int>.value( // int 타입 사용
-      value: index,
-      child: Cart(),
-    );
-
     int _myLegth = 5;
-    final appState = Provider.of<AppState>(context, listen: false);
     return DefaultTabController(
 
       length: _myLegth,
@@ -42,12 +35,10 @@ class _boardContolState extends State<boardContol> {
           appBar: AppBar(
             toolbarHeight: 55,
 
-            backgroundColor: Colors.red[900],
+            backgroundColor: kPrimaryColor,
             //title: myTopBar(),
             bottom: TabBar(
-              // labelStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              // unselectedLabelStyle:
-              //     TextStyle(fontSize: 13, fontWeight: FontWeight.w300),
+
               indicatorColor: kPrimaryColor,
               labelColor: Colors.white,
               labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -78,20 +69,14 @@ class _boardContolState extends State<boardContol> {
             listHumor(),
             listCreator2(),
           ]),
-          floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            //onPressed: showCreateDocDialog,
-            onPressed: () => appState.currentAction =
-                PageAction(state: PageState.addPage, page: CartPageConfig),
-    backgroundColor: kPrimaryColor,
-    //         onPressed: ()=> Navigator.of(context).push(MaterialPageRoute<void>(
-    // builder: (BuildContext context){
-    //   return(Cart(index));
-    // }
-    // ),
-
-
-          )),
+          // floatingActionButton: FloatingActionButton(
+          //   child: Icon(Icons.add),
+          //   //onPressed: showCreateDocDialog,
+          //   onPressed: () => appState.currentAction =
+          //       PageAction(state: PageState.addPage, page: CartPageConfig),
+          //   backgroundColor: kPrimaryColor,
+          // )
+      ),
     );
   }
 }
