@@ -5,6 +5,7 @@ import 'package:overlock/Chat/ChatRoom.dart';
 import 'package:overlock/Chat/Methods.dart';
 import 'package:overlock/constants.dart';
 import 'package:overlock/router/ui_pages.dart';
+import 'package:overlock/ui/moreInforNewUser.dart';
 import 'package:provider/provider.dart';
 
 import '../app_state.dart';
@@ -107,6 +108,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           // }
 
           isLoading = false;
+          FocusScope.of(context).requestFocus(FocusNode());
+
+
         });
         //print(userMap);
       });
@@ -123,15 +127,22 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("온라인동기"),
+            Text("온라인동기",style: TextStyle(fontSize: 18 )),
             IconButton(
               icon: const Icon(
                 Icons.settings,
                 size: 18,
                 color: Colors.white,
               ),
-              onPressed: () => appState.currentAction = PageAction(
-                  state: PageState.addPage, page: SettingsPageConfig),
+              onPressed: (){
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => moreInforNewUser(),
+                  ),
+                );
+              },
+              // onPressed: () => appState.currentAction = PageAction(
+              //     state: PageState.addPage, page: SettingsPageConfig),
             ),
           ],
         ),
@@ -167,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: TextField(
                       controller: _search,
                       decoration: InputDecoration(
-                        hintText: "Search",
+                        hintText: "친구 아이디를 검색하세요." , hintStyle: TextStyle(fontSize: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -181,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ElevatedButton(
                   // 찾기 버튼
                   onPressed: onSearch, //onSearch 실행
-                  child: Text("Search"),
+                  child: Text("검색", style: TextStyle(fontSize: 12)),
                 ),
                 // SizedBox(
                 //   height: size.height / 30,
@@ -209,11 +220,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                          userList[index]['name'],
                          style: TextStyle(
                            color: Colors.black,
-                           fontSize: 17,
+                           fontSize: 14,
                            fontWeight: FontWeight.w500,
                          ),
                        ),
-                       subtitle: Text(userList[index]['email']),
+                       subtitle: Text(userList[index]['email'], style: TextStyle(fontSize: 12),
+                       ),
                        trailing: Icon(Icons.chat, color: Colors.black),
                      );
 

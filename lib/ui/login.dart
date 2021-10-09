@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:overlock/ui/reset.dart';
+import 'package:overlock/ui/userInfo/AgreePage.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,6 +45,8 @@ class _LoginState extends State<Login> {
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _warningTextController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
   OutlineInputBorder _border = OutlineInputBorder();
 
@@ -55,6 +59,7 @@ class _LoginState extends State<Login> {
     final itemHeight = itemWidth * (size.width / size.height);
     _passwordController.text = appState.password;
     _emailController.text = appState.emailAddress;
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -127,9 +132,13 @@ class _LoginState extends State<Login> {
                           side: const BorderSide(color: Colors.black),
                         ),
                         onPressed: () {
-                          appState.currentAction = PageAction(
-                              state: PageState.addPage,
-                              page: CreateAccountPageConfig);
+                          // Navigator.of(context).push(MaterialPageRoute(
+                          //     builder: (context) => agreePage()));
+                             appState.agreePage();
+
+                          // appState.currentAction = PageAction(
+                          //     state: PageState.addPage,
+                          //     page: CreateAccountPageConfig);
                         },
                         child: const Text(
                           '계정 생성',
@@ -156,9 +165,9 @@ class _LoginState extends State<Login> {
                         // },
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
-                            await _signInWithEmailAndPassword();
+                            await _signInWithEmailAndPassword(appState);
                           }
-                          appState.login();
+                         // appState.login();
                         },
                         child: const Text(
                           '로그인',
@@ -171,6 +180,19 @@ class _LoginState extends State<Login> {
                     ),
                   ],
                 ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(_warningTextController.text, style: TextStyle(color: Colors.red),),
+              )
+              ,
+                TextButton( child: Text("비밀번호 찾기",style: TextStyle(color: Colors.black)),
+                  onPressed:(){
+                  appState.findPassword();
+                  }
+                  //PageAction(state: PageState.addPage, page: ResetScreenConfig, widget: ResetScreen());}
+                      //()=> Navigator.of(context).push(MaterialPageRoute(builder: (context) =>ResetScreen()))
+                  ,)
+                ,
                 Spacer(
                   flex: 2,
                 )
@@ -198,9 +220,11 @@ class _LoginState extends State<Login> {
   TextFormField buildTextFormField(
       String labelText, TextEditingController controller, bool isPassword) {
     return TextFormField(
+        keyboardType: isPassword?  TextInputType.text:TextInputType.emailAddress,
         cursorColor: kPrimaryColor,
         obscureText: isPassword ? true : false,
         controller: controller,
+        validator:  isPassword? validatepassword :validateEmail,
         style: TextStyle(color: Colors.black),
         decoration: InputDecoration(
           hintText: labelText,
@@ -227,63 +251,27 @@ class _LoginState extends State<Login> {
     });
   }
 
-  Future<void> _signInWithEmailAndPassword() async {
+  Future<void> _signInWithEmailAndPassword(AppState appState) async {
     try {
       final User user = (await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-      ))
-          .user;
-      final appState = Provider.of<AppState>(context, listen: false);
+      )).user;
+
       appState.login();
 
-      final QuerySnapshot result = await FirebaseFirestore.instance
-          .collection('users')
-          .where('id', isEqualTo: user.uid)
-          .get();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        _warningTextController.text="입력하신 이메일로 가입한 유저는 없습니다.";
+        setState(() {
 
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(_auth.currentUser.uid)
-          .get()
-          .then((value) => user.updateProfile(displayName: value['name']));
+        });
+      } else if (e.code == 'wrong-password') {
+        _warningTextController.text ="비밀번호를 다시 확인해주시기 바랍니다.";
+        setState(() {
 
-      await prefs.setString('id', currentUser.uid);
-      await prefs.setString('name', currentUser.displayName);
-      await prefs.setString('photoUrl', currentUser.photoURL);
-      //
-      // final List<DocumentSnapshot> documents = result.docs;
-      // // if (documents.length == 0) {
-      // //   // Update data to server if new user
-      // //   FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      // //     'name': user.displayName,
-      // //     'photoUrl': user.photoURL,
-      // //     'id': user.uid,
-      // //     'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
-      // //     'chattingWith': null
-      // //   });
-      //
-      //   // Write data to local
-      //   currentUser = user;
-      //
-      // } else {
-      //   // Write data to local
-      //   await prefs.setString('id', documents[0]['id']);
-      //   await prefs.setString('nickname', documents[0]['nickname']);
-      //   await prefs.setString('photoUrl', documents[0]['photoUrl']);
-      //   await prefs.setString('aboutMe', documents[0]['aboutMe']);
-      // }
-      //
-      // print("로그인성공");
-
-      // Provider.of<PageNotifier>(context, listen: false).goToOtherPage(OverlockMain.pageName);
-
-    } catch (e) {
-      Scaffold.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to sign in with Email & Password'),
-        ),
-      );
+        });
+      }
     }
   }
 
@@ -293,5 +281,18 @@ class _LoginState extends State<Login> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+  String validateEmail(String value) {
+    if (!value.contains('@')){
+      return '유효한 이메일 주소를 입력해주세요';
+    }
+  }
+
+  String validatepassword(String value) {
+    if(value.length <8)
+    {
+      return '비밀번호는 8자 이상 입력해주시기 바랍니다.';
+    }
+    return null;
   }
 }

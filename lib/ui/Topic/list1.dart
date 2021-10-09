@@ -8,42 +8,52 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../app_state.dart';
+import '../../main.dart';
 import '../WritePage.dart';
 import '../details.dart';
+import '../reWritePage.dart';
 
+class list1 extends StatelessWidget {
+  final String colNameFormFB;
 
-
-class listTip extends StatelessWidget {
-  final String colName = "꿀팁";
+  list1(this.colNameFormFB);
 
   // 필드명
   final String fnName = "name";
   final String fnDescription = "description";
   final String fnDatetime = "datetime";
-  final String userID = "userID";
+  final String userID = "nickName";
 
   TextEditingController _newNameCon = TextEditingController();
   TextEditingController _newDescCon = TextEditingController();
   TextEditingController _undNameCon = TextEditingController();
   TextEditingController _undDescCon = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  bool _showAppbar = true; //this is to show app bar
-  ScrollController _scrollBottomBarController =
-  new ScrollController(); // set controller on scrolling
   bool isScrollingDown = false;
-  bool _show = true;
-  double bottomBarHeight = 130; // set bottom bar height
-  double _bottomBarOffset = 0;
+  double bottomBarHeight = 150; // set bottom bar height
 
   @override
   Widget build(BuildContext context) {
+    final String colName = colNameFormFB;
     final query = MediaQuery.of(context);
     final size = query.size;
     final appState = Provider.of<AppState>(context, listen: false);
     return Scaffold(
         backgroundColor: Colors.grey[200],
         body: ListView(
+          physics: NeverScrollableScrollPhysics(),
           children: <Widget>[
+            Container(
+              child: SizedBox(
+                  height: 30,
+                  child: Card(
+                      child: Center(
+                          child: Text(
+                    '${colName} 게시판 입니다. 군사보안과 매너를 지켜주세요.',
+                    style: TextStyle(fontSize: 12),
+                  )))),
+            ),
             Container(
               height: size.height - bottomBarHeight,
               child: StreamBuilder<QuerySnapshot>(
@@ -53,7 +63,8 @@ class listTip extends StatelessWidget {
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) return Text("Error: ${snapshot.error}");
+                  if (snapshot.hasError)
+                    return Text("Error: ${snapshot.error}");
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return Scaffold(
@@ -61,102 +72,141 @@ class listTip extends StatelessWidget {
                       );
                     default:
                       return ListView(
+                        // physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         children:
-                        snapshot.data.docs.map((DocumentSnapshot document) {
+                            snapshot.data.docs.map((DocumentSnapshot document) {
                           Timestamp ts = document[fnDatetime];
                           String dt = timestampToStrDateTime(ts);
                           String ShortDt = dt.substring(0, 10);
                           String username = document[userID];
                           return Card(
-                            elevation: 1,
+                            elevation: 2,
                             child: InkWell(
                               // Read Document
                               onTap: () {
                                 appState.currentAction = PageAction(
                                     state: PageState.addPage,
-                                    widget: Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
-                                    //widget: detail2(document[fnName], document[userID], document[fnDescription], document.id, colName ),
+                                    widget: Details(
+                                      document[fnName],
+                                      document[userID],
+                                      document[fnDescription],
+                                      document.id,
+                                      colName,
+                                      document["pageView"].toString(),
+                                      document["likes"].toString(),
+                                      document["hates"].toString(),
+                                      document["replys"].toString(),
+                                      document["uid"].toString(),
+                                    ),
                                     page: DetailsPageConfig);
+                                // Navigator.of(context).push(MaterialPageRoute(
+                                //   builder: (context) =>  ;
                                 int view = document["pageView"];
                                 view++;
-                                FirebaseFirestore.instance.collection(colName).doc(document.id).update({
-                                  "pageView" : view
-                                });
+                                FirebaseFirestore.instance
+                                    .collection(colName)
+                                    .doc(document.id)
+                                    .update({"pageView": view});
 
                                 // showDocument(document.id, appState);
                               },
                               // Update or Delete Document
-                              onLongPress: () {
-                                showUpdateOrDeleteDocDialog(document, context);
-                              },
+                              // onLongPress: () {
+                              //   showUpdateOrDeleteDocDialog(document, context);
+                              // },
                               child: Container(
                                 //height: size.height * 0.3,
-                                // padding: const EdgeInsets.only(top: 10),
+                                padding:
+                                    const EdgeInsets.only(top: 8, bottom: 4),
                                 child: Column(
                                   children: <Widget>[
                                     Column(children: [
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                          //bottom: 8.0,
+                                            //bottom: 8.0,
                                             left: 12,
                                             right: 12),
                                         child: Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
                                             SizedBox(
-                                              width: size.width*0.7,
-                                              child: Text(document[fnName].toString(),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .headline6
-                                                    .copyWith(
-                                                  color: Colors.black,
-                                                ), overflow: TextOverflow.ellipsis,
+                                              width: size.width * 0.8,
+                                              child: Text(
+                                                document[fnName].toString()+" ...["+document["replys"].toString()+"]",
+                                                style: TextStyle(
+                                                  fontSize: 17,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
-                                            IconButton(
-                                                icon: Icon(Icons.more_vert,
-                                                    size: 17, color: Colors.grey),
-                                                onPressed: () {})
                                           ],
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                            bottom: 8.0,
+                                            top: 8,
+                                            bottom: 10.0,
                                             left: 15,
-                                            right: 15),
+                                            right: 25),
                                         child: Container(
-                                          height: 58,
+                                          height: 50,
                                           alignment: Alignment.topLeft,
                                           child: Text(
                                             document[fnDescription],
                                             style: TextStyle(
                                                 color: Colors.grey,
-                                                fontSize: 16, letterSpacing: 0.2, height: 1.2
-                                            ),overflow: TextOverflow.ellipsis,
-                                            maxLines: 4,
+                                                fontSize: 14,
+                                                letterSpacing: 0.2,
+                                                height: 1.2),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 3,
                                           ),
                                         ),
                                       ),
                                     ]),
                                     Column(
                                       children: [
+                                        document["uid"] == _auth.currentUser.uid
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15, right: 15),
+                                                child: Container(
+                                                  alignment:
+                                                      Alignment.bottomLeft,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(document[userID]+"(내가쓴글)",
+                                                          style: TextStyle(
+                                                            color: Colors.amber[800]
+                                                                ,
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.bold
+                                                          )),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            :
                                         Padding(
                                           padding: const EdgeInsets.only(
                                               left: 15, right: 15),
                                           child: Container(
-                                            alignment: Alignment.bottomLeft,
+                                            alignment:
+                                            Alignment.bottomLeft,
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment
+                                                  .spaceBetween,
                                               children: [
-                                                Text(document[userID],
+                                                Text("익명의 군인",
                                                     style: TextStyle(
-                                                      color: kPrimaryColor,
-                                                      fontSize: 14,
+                                                        color:kPrimaryColor,
+                                                        fontSize: 12,
                                                     )),
                                               ],
                                             ),
@@ -167,40 +217,74 @@ class listTip extends StatelessWidget {
                                           height: 30,
                                           child: Padding(
                                             padding: const EdgeInsets.only(
-                                                top:8.0, bottom: 8.0),
+                                                right: 10),
                                             child: Row(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment.center,
                                               children: <Widget>[
-                                                FlatButton.icon(
+                                                TextButton.icon(
                                                     onPressed: () {},
                                                     icon: Icon(
                                                       Icons.view_agenda,
-                                                      size: 12,
+                                                      size: 10,
                                                       color: Colors.grey,
                                                     ),
-                                                    label: Text(document["pageView"].toString())),
-                                                FlatButton.icon(
+                                                    label: Text(
+                                                      document["pageView"]
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: Colors.grey),
+                                                    )),
+                                                TextButton.icon(
                                                     onPressed: () {},
                                                     icon: Icon(
                                                         Icons.favorite_border,
-                                                        size: 12,
+                                                        size: 10,
                                                         color: Colors.grey),
-                                                    label: Text(document["likes"].toString())),
-                                                FlatButton.icon(
+                                                    label: Text(
+                                                        document["likes"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 10,
+                                                            color:
+                                                                Colors.grey))),
+                                                TextButton.icon(
                                                     onPressed: () {},
-                                                    icon: Icon(Icons.add_comment,
-                                                        size: 12,
+                                                    icon: Icon(
+                                                        Icons
+                                                            .do_disturb_off_rounded,
+                                                        size: 10,
                                                         color: Colors.grey),
-                                                    label: Text(document["replys"].toString())),
-                                                Text(
-                                                  dt.substring(2, 16).toString(),
+                                                    label: Text(
+                                                        document["hates"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 10,
+                                                            color:
+                                                                Colors.grey))),
+                                                TextButton.icon(
+                                                    onPressed: () {},
+                                                    icon: Icon(
+                                                        Icons.add_comment,
+                                                        size: 10,
+                                                        color: Colors.grey),
+                                                    label: Text(
+                                                        document["replys"]
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 10,
+                                                            color:
+                                                                Colors.grey))),
+                                                Spacer(),
+                                                TextButton(
+                                                    child: Text(
+                                                  dt
+                                                      .substring(2, 13)
+                                                      .toString(),
                                                   style: TextStyle(
+                                                    fontSize: 10,
                                                     color: Colors.grey,
                                                   ),
-                                                ),
+                                                )),
                                               ],
                                             ),
                                           ),
@@ -222,24 +306,23 @@ class listTip extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed:
-          //   () {
-          // appState.currentAction = PageAction(
-          //   state: PageState.addPage,
-          //   widget: WritePage(colName));},
+          onPressed: () {
+            appState.currentAction = PageAction(
+                state: PageState.addPage,
+                page: WritePageConfig,
+                widget: WritePages(colName));
+          },
 
-
-
-
-              ()=>  Navigator.push( context, MaterialPageRoute( builder: (context) => WritePage(colName)),),
+          //     () => Navigator.push(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => WritePages(colName)),
+          // ),
           // onPressed: () => appState.currentAction =
           //     PageAction(state: PageState.addPage, page: CartPageConfig),
 
           backgroundColor: kPrimaryColor,
-        )
-    );
+        ));
     // Create Document
-
   }
 
   /// Firestore CRUD Logic
@@ -265,9 +348,8 @@ class listTip extends StatelessWidget {
   }
 
   void showReadDocSnackBar(DocumentSnapshot doc, appState) {
-    appState.currentAction = PageAction(
-        state: PageState.addPage,
-        page: DetailsPageConfig);
+    appState.currentAction =
+        PageAction(state: PageState.addPage, page: DetailsPageConfig);
   }
 
 // 문서 갱신 (Update)
@@ -308,7 +390,7 @@ class listTip extends StatelessWidget {
             ),
           ),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("Cancel"),
               onPressed: () {
                 _newNameCon.clear();
@@ -316,7 +398,7 @@ class listTip extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Create"),
               onPressed: () {
                 if (_newDescCon.text.isNotEmpty &&
@@ -332,7 +414,24 @@ class listTip extends StatelessWidget {
         );
       },
     );
+  }
 
+  void showContentsMoreButtonDialog(DocumentSnapshot doc, context) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: Text("Update/Delete Document"),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("Cancel"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ]);
+        });
   }
 
   void showUpdateOrDeleteDocDialog(DocumentSnapshot doc, context) {
@@ -360,7 +459,7 @@ class listTip extends StatelessWidget {
             ),
           ),
           actions: <Widget>[
-            FlatButton(
+            TextButton(
               child: Text("Cancel"),
               onPressed: () {
                 _undNameCon.clear();
@@ -368,7 +467,7 @@ class listTip extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Update"),
               onPressed: () {
                 if (_undNameCon.text.isNotEmpty &&
@@ -378,7 +477,7 @@ class listTip extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
-            FlatButton(
+            TextButton(
               child: Text("Delete"),
               onPressed: () {
                 deleteDoc(doc.id);
@@ -386,18 +485,13 @@ class listTip extends StatelessWidget {
               },
             )
           ],
-
         );
-
       },
-
     );
-
   }
 
   String timestampToStrDateTime(Timestamp ts) {
     return DateTime.fromMicrosecondsSinceEpoch(ts.microsecondsSinceEpoch)
         .toString();
   }
-
 }

@@ -21,6 +21,8 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     appState = Provider.of<AppState>(context);
     final query = MediaQuery.of(context);
+
+
     final size = query.size;
     final itemWidth = size.width;
     final itemHeight = itemWidth * (size.width / size.height);

@@ -1,6 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:overlock/ui/userInfo/AgreePage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'router/ui_pages.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 const String LoggedInKey = 'LoggedIn';
 
@@ -81,10 +85,32 @@ class AppState extends ChangeNotifier {
         PageAction(state: PageState.replaceAll, page: ListItemsPageConfig); //메인페이지로 이동시킨다.
     notifyListeners(); //노티파이 리스너 실행
   }
+  void agreePage() {
+       _currentAction =
+        PageAction(state: PageState.addPage, page: AgreePageConfig); //메인페이지로 이동시킨다.
+    notifyListeners(); //노티파이 리스너 실행
+  }
+  void firstLoggedIn() {
+    _loggedIn = true; //로그인 수행시 로그인 상태를 true로 설정한다.
+    saveLoginState(loggedIn);
+    _currentAction =
+        PageAction(state: PageState.addPage, page: MoreInforNewUserConfig); //메인페이지로 이동시킨다.
+    notifyListeners(); //노티파이 리스너 실행
+  }
+  void findPassword() {
+    _currentAction =
+        PageAction(state: PageState.addPage, page: ResetScreenConfig); //메인페이지로 이동시킨다.
+    notifyListeners(); //노티파이 리스너 실행
+  }
+
+
 
   void logout() {
     _loggedIn = false;
     saveLoginState(loggedIn);
+    FirebaseFirestore.instance.collection('users').doc(_auth.currentUser.uid).update({
+      "status": "Offline",
+    });
     _currentAction =
         PageAction(state: PageState.replaceAll, page: LoginPageConfig); //로그인 페이지로 이동.
     notifyListeners();

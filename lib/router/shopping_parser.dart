@@ -29,6 +29,8 @@ class ShoppingParser extends RouteInformationParser<PageConfiguration> {
         return CheckoutPageConfig;
       case SettingsPath:
         return SettingsPageConfig;
+
+
       default:
         return SplashPageConfig;
     }
@@ -43,7 +45,7 @@ class ShoppingParser extends RouteInformationParser<PageConfiguration> {
         return const RouteInformation(location: LoginPath);
       case Pages.CreateAccount:
         return const RouteInformation(location: CreateAccountPath);
-      case Pages.List:
+      case Pages.ListItems:
         return const RouteInformation(location: ListItemsPath);
       case Pages.Details:
         return const RouteInformation(location: DetailsPath);

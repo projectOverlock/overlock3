@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'size_config.dart';
 
 const kPrimaryColor = Color(0xFFB71C1C); //red original
-//const kPrimaryColor = Color(0xFF673AB7); //purple original
+//const kPrimaryColor = Color(0xFF4A148C); //purple original
 //const kPrimaryColor = Color(0xFF6A1B9A); //purple2 original
 //const kPrimaryColor = Color(0xFFFF8F00); //amber original
+//const kPrimaryColor = Color(0xFFB00020); //amber original
+//const kPrimaryColor = Color(0xFF1B5E20); //국방생
+
+
 
 
 const kPrimaryLightColor = Color(0xFFFFECDF);
@@ -20,10 +24,7 @@ const KDefaultPadding = 20.0;
 const kAnimationDuration = Duration(milliseconds: 200);
 
 final headingStyle = TextStyle(
-  fontSize: getProportionateScreenWidth(28),
-  fontWeight: FontWeight.bold,
-  color: Colors.amber,
-  height: 1.5,
+  fontSize: 18,
 );
 
 const defaultDuration = Duration(milliseconds: 250);

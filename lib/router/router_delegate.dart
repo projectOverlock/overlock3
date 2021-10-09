@@ -1,8 +1,21 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:overlock/ui/WritePage.dart';
+import 'package:overlock/ui/moreInforNewUser.dart';
+import 'package:overlock/ui/reset.dart';
 import 'package:overlock/ui/sowon/WriteSoWon.dart';
+import 'package:overlock/ui/userInfo/AgreePage.dart';
+import 'package:overlock/ui/userInfo/FirstCorpSelect.dart';
+import 'package:overlock/ui/userInfo/FirstDatePick.dart';
+import 'package:overlock/ui/userInfo/FirstLevelSelect.dart';
+import 'package:overlock/ui/userInfo/FirstMilSelect.dart';
+import 'package:overlock/ui/userInfo/LevelSelector.dart';
+import 'package:overlock/ui/userInfo/MilSelector.dart';
+import 'package:overlock/ui/userInfo/datePicker.dart';
+import 'package:overlock/ui/userInfo/moreInformation.dart';
+import 'package:overlock/ui/userInfo/nickNameChange.dart';
+import 'package:overlock/ui/userInfo/settings.dart';
 import '../app_state.dart';
 import '../ui/details.dart';
 import '../ui/cart.dart';
@@ -10,7 +23,6 @@ import '../ui/checkout.dart';
 import '../ui/create_account.dart';
 import '../ui/list_items.dart';
 import '../ui/login.dart';
-import '../ui/settings.dart';
 import '../ui/splash.dart';
 import 'back_dispatcher.dart';
 import 'ui_pages.dart';
@@ -116,7 +128,7 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
         case Pages.CreateAccount:
           _addPageData(CreateAccount(), CreateAccountPageConfig);
           break;
-        case Pages.List:
+        case Pages.ListItems:
           _addPageData(ListItems(), ListItemsPageConfig);
           break;
         case Pages.Cart:
@@ -126,10 +138,54 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
           _addPageData(Checkout(), CheckoutPageConfig);
           break;
         case Pages.Settings:
-          _addPageData(Settings(), SettingsPageConfig);
+          _addPageData(SettingsState(), SettingsPageConfig);
           break;
         case Pages.WriteSoWon:
           _addPageData(writeSoWon(), SettingsPageConfig);
+          break;
+        case Pages.AgreePage:
+          _addPageData(agreePage(), SettingsPageConfig);
+          break;
+        case Pages.MoreinforNewUser:
+          _addPageData(moreInforNewUser(), SettingsPageConfig);
+          break;
+
+        case Pages.WritnickNameChange:
+          _addPageData(nickNameChange(), SettingsPageConfig);
+          break;
+        case Pages.levelSelector:
+          _addPageData(levelSelector(), SettingsPageConfig);
+          break;
+        case Pages.milSelector:
+          _addPageData(milSelector(), SettingsPageConfig);
+          break;
+        case Pages.moreInformation:
+          _addPageData(moreInformation(), SettingsPageConfig);
+          break;
+        case Pages.datePicker:
+          _addPageData(datePicker(), SettingsPageConfig);
+          break;
+
+        case Pages.ResetScreen:
+          _addPageData(ResetScreen(), SettingsPageConfig);
+          break;
+        case Pages.FirstDatePick:
+          _addPageData(FirstDatePick(), SettingsPageConfig);
+          break;
+        case Pages.FirstLevelSelect:
+          _addPageData(FirstLevelSelect(), SettingsPageConfig);
+          break;
+        case Pages.FirstMilSelect:
+          _addPageData(FirstMilSelect(), SettingsPageConfig);
+          break;
+        case Pages.FirstCorpSelect:
+          _addPageData(FirstCorpSelect(), SettingsPageConfig);
+          break;
+
+        case Pages.WritePage:
+          if (pageConfig.currentPageAction != null) {
+            _addPageData(pageConfig.currentPageAction.widget, pageConfig);
+          }
           break;
         case Pages.Details:
           if (pageConfig.currentPageAction != null) {
@@ -196,7 +252,7 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
       case Pages.CreateAccount:
         CreateAccountPageConfig.currentPageAction = action;
         break;
-      case Pages.List:
+      case Pages.ListItems:
         ListItemsPageConfig.currentPageAction = action;
         break;
       case Pages.Cart:
@@ -214,6 +270,47 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
       case Pages.Details:
         DetailsPageConfig.currentPageAction = action;
         break;
+      case Pages.AgreePage:
+        AgreePageConfig.currentPageAction = action;
+        break;
+      case Pages.MoreinforNewUser:
+        MoreInforNewUserConfig.currentPageAction = action;
+        break;
+      case Pages.datePicker:
+        datePickerConfig.currentPageAction = action;
+        break;
+      case Pages.WritnickNameChange:
+        WritnickNameChangeConfig.currentPageAction = action;
+        break;
+      case Pages.levelSelector:
+        levelSelectorConfig.currentPageAction = action;
+        break;
+      case Pages.milSelector:
+        milSelectorConfig.currentPageAction = action;
+        break;
+      case Pages.moreInformation:
+        moreInformationConfig.currentPageAction = action;
+        break;
+      case Pages.WritePage:
+        WritePageConfig.currentPageAction = action;
+        break;
+
+      case Pages.ResetScreen:
+        ResetScreenConfig.currentPageAction = action;
+        break;
+      case Pages.FirstDatePick:
+        FirstDatePickConfig.currentPageAction = action;
+        break;
+      case Pages.FirstLevelSelect:
+        FirstLevelSelectConfig.currentPageAction = action;
+        break;
+      case Pages.FirstMilSelect:
+        FirstMilSelectConfig.currentPageAction = action;
+        break;
+      case Pages.FirstCorpSelect:
+        FirstCorpSelectConfig.currentPageAction = action;
+        break;
+
       default:
         break;
     }
@@ -243,7 +340,8 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
           break;
         case PageState.addWidget:
           _setPageAction(appState.currentAction);
-          pushWidget(appState.currentAction.widget, appState.currentAction.page);
+          pushWidget(
+              appState.currentAction.widget, appState.currentAction.page);
           break;
         case PageState.addAll:
           addAll(appState.currentAction.pages);
@@ -254,7 +352,6 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
     return List.of(_pages);
   }
 
-
   void parseRoute(Uri uri) {
     if (uri.pathSegments.isEmpty) {
       setNewRoutePath(SplashPageConfig);
@@ -264,7 +361,26 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
     // Handle navapp://deeplinks/details/#
     if (uri.pathSegments.length == 2) {
       if (uri.pathSegments[0] == 'details') {
-        pushWidget(Details(int.parse(uri.pathSegments[1]).toString(), int.parse(uri.pathSegments[1]).toString(),  int.parse(uri.pathSegments[1]).toString(),  int.parse(uri.pathSegments[1]).toString(),  int.parse(uri.pathSegments[1]).toString(), int.parse(uri.pathSegments[1]).toString(),int.parse(uri.pathSegments[1]).toString(),int.parse(uri.pathSegments[1]).toString() ), DetailsPageConfig);
+        pushWidget(
+            Details(
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString(),
+                int.parse(uri.pathSegments[1]).toString()),
+
+    DetailsPageConfig);
+      } else if (uri.pathSegments[0] == 'WritePage') {
+        pushWidget(
+            WritePages(
+              int.parse(uri.pathSegments[1]).toString(),
+            ),
+            WritePageConfig);
       }
     } else if (uri.pathSegments.length == 1) {
       final path = uri.pathSegments[0];
@@ -278,6 +394,7 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
         case 'createAccount':
           setPath([
             _createPage(Login(), LoginPageConfig),
+            _createPage(agreePage(), AgreePageConfig),
             _createPage(CreateAccount(), CreateAccountPageConfig)
           ]);
           break;
@@ -290,22 +407,97 @@ class ShoppingRouterDelegate extends RouterDelegate<PageConfiguration>
             _createPage(Cart(), CartPageConfig)
           ]);
           break;
+
         case 'checkout':
           setPath([
             _createPage(ListItems(), ListItemsPageConfig),
             _createPage(Checkout(), CheckoutPageConfig)
           ]);
           break;
+
         case 'WriteSoWon':
           setPath([
             _createPage(ListItems(), ListItemsPageConfig),
             _createPage(writeSoWon(), WriteSoWonPageConfig)
           ]);
           break;
-        case 'settings':
+        case 'AgreePage':
+          setPath([
+            _createPage(Login(), LoginPageConfig),
+            _createPage(agreePage(), AgreePageConfig)
+          ]);
+          break;
+        case 'MoreinforNewUser':
           setPath([
             _createPage(ListItems(), ListItemsPageConfig),
-            _createPage(Settings(), SettingsPageConfig)
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig)
+          ]);
+          break;
+        case 'WritnickNameChange':
+          setPath([
+            _createPage(ListItems(), ListItemsPageConfig),
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig),
+            _createPage(nickNameChange(), WritnickNameChangeConfig),
+          ]);
+          break;
+        case 'levelSelector':
+          setPath([
+            _createPage(ListItems(), ListItemsPageConfig),
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig),
+            _createPage(levelSelector(), levelSelectorConfig),
+          ]);
+          break;
+        case 'milSelector':
+          setPath([
+            _createPage(ListItems(), ListItemsPageConfig),
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig),
+            _createPage(milSelector(), milSelectorConfig),
+          ]);
+          break;
+        case 'datePicker':
+          setPath([
+            _createPage(ListItems(), ListItemsPageConfig),
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig),
+            _createPage(datePicker(), datePickerConfig),
+          ]);
+          break;
+        case 'moreInformation':
+          setPath([
+            _createPage(ListItems(), ListItemsPageConfig),
+            _createPage(moreInforNewUser(), MoreInforNewUserConfig),
+            _createPage(moreInformation(), moreInformationConfig),
+          ]);
+          break;
+
+        case 'ResetScreen':
+          setPath([
+            _createPage(Login(), LoginPageConfig),
+            _createPage(ResetScreen(), moreInformationConfig),
+          ]);
+          break;
+
+        case 'FirstDatePick':
+          setPath([
+            _createPage(CreateAccount(), CreateAccountPageConfig),
+            _createPage(FirstDatePick(), FirstDatePickConfig)
+          ]);
+          break;
+        case 'FirstLevelSelect':
+          setPath([
+            _createPage(FirstDatePick(), FirstDatePickConfig),
+            _createPage(FirstLevelSelect(), FirstLevelSelectConfig),
+          ]);
+          break;
+        case 'FirstMilSelect':
+          setPath([
+            _createPage(FirstLevelSelect(), FirstLevelSelectConfig),
+            _createPage(FirstMilSelect(), FirstMilSelectConfig),
+          ]);
+          break;
+        case 'FirstCorpSelect':
+          setPath([
+            _createPage(FirstMilSelect(), FirstMilSelectConfig),
+            _createPage(FirstCorpSelect(), FirstCorpSelectConfig),
           ]);
           break;
       }

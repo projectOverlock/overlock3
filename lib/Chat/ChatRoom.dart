@@ -48,10 +48,12 @@ class ChatRoom extends StatelessWidget {
               return Container(
                 child: Column(
                   children: [
-                    Text(userMap['name']),
+                    Text(userMap['name'],
+                      style: TextStyle(fontSize: 18),
+                    ),
                     Text(
                       snapshot.data['status'],
-                      style: TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 12),
                     ),
                   ],
                 ),

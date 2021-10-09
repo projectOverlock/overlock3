@@ -2,19 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/painting.dart';
-import 'package:overlock/constants.dart';
+import 'package:flutter/rendering.dart';
 import 'package:overlock/router/ui_pages.dart';
+import 'package:overlock/ui/Poll/writePollRequest.dart';
+import 'package:overlock/ui/cart.dart';
+import 'package:overlock/ui/newDetail.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../app_state.dart';
+import '../../constants.dart';
 import '../WritePage.dart';
 import '../details.dart';
 
-
-
-class listCreator2 extends StatelessWidget {
-  final String colName = "제작";
+class requstPoll extends StatelessWidget {
+  final String colName = "투표요청";
 
   // 필드명
   final String fnName = "name";
@@ -29,12 +30,11 @@ class listCreator2 extends StatelessWidget {
 
   bool _showAppbar = true; //this is to show app bar
   ScrollController _scrollBottomBarController =
-  new ScrollController(); // set controller on scrolling
+      new ScrollController(); // set controller on scrolling
   bool isScrollingDown = false;
   bool _show = true;
   double bottomBarHeight = 130; // set bottom bar height
   double _bottomBarOffset = 0;
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,8 @@ class listCreator2 extends StatelessWidget {
                     .snapshots(),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (snapshot.hasError) return Text("Error: ${snapshot.error}");
+                  if (snapshot.hasError)
+                    return Text("Error: ${snapshot.error}");
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                       return Scaffold(
@@ -64,7 +65,7 @@ class listCreator2 extends StatelessWidget {
                       return ListView(
                         shrinkWrap: true,
                         children:
-                        snapshot.data.docs.map((DocumentSnapshot document) {
+                            snapshot.data.docs.map((DocumentSnapshot document) {
                           Timestamp ts = document[fnDatetime];
                           String dt = timestampToStrDateTime(ts);
                           String ShortDt = dt.substring(0, 10);
@@ -76,14 +77,27 @@ class listCreator2 extends StatelessWidget {
                               onTap: () {
                                 appState.currentAction = PageAction(
                                     state: PageState.addPage,
-                                    widget: Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
+                                    widget: Details(
+                                      document[fnName],
+                                      document[userID],
+                                      document[fnDescription],
+                                      document.id,
+                                      colName,
+                                      document["pageView"].toString(),
+                                      document["likes"].toString(),
+                                      document["replys"].toString(),
+                                      document["uid"].toString(),
+                                      document["hates"].toString(),
+
+                                    ),
                                     //widget: detail2(document[fnName], document[userID], document[fnDescription], document.id, colName ),
                                     page: DetailsPageConfig);
                                 int view = document["pageView"];
                                 view++;
-                                FirebaseFirestore.instance.collection(colName).doc(document.id).update({
-                                  "pageView" : view
-                                });
+                                FirebaseFirestore.instance
+                                    .collection(colName)
+                                    .doc(document.id)
+                                    .update({"pageView": view});
 
                                 // showDocument(document.id, appState);
                               },
@@ -99,36 +113,37 @@ class listCreator2 extends StatelessWidget {
                                     Column(children: [
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                          //bottom: 8.0,
+                                            //bottom: 8.0,
                                             left: 12,
                                             right: 12),
                                         child: Row(
                                           mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                              MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
                                             SizedBox(
-                                              width: size.width*0.7,
-                                              child: Text(document[fnName].toString(),
+                                              width: size.width * 0.7,
+                                              child: Text(
+                                                document[fnName].toString(),
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .headline6
                                                     .copyWith(
-                                                  color: Colors.black,
-                                                ), overflow: TextOverflow.ellipsis,
+                                                      color: Colors.black,
+                                                    ),
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                             IconButton(
                                                 icon: Icon(Icons.more_vert,
-                                                    size: 17, color: Colors.grey),
+                                                    size: 17,
+                                                    color: Colors.grey),
                                                 onPressed: () {})
                                           ],
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.only(
-                                            bottom: 8.0,
-                                            left: 15,
-                                            right: 15),
+                                            bottom: 8.0, left: 15, right: 15),
                                         child: Container(
                                           height: 58,
                                           alignment: Alignment.topLeft,
@@ -136,8 +151,10 @@ class listCreator2 extends StatelessWidget {
                                             document[fnDescription],
                                             style: TextStyle(
                                                 color: Colors.grey,
-                                                fontSize: 16, letterSpacing: 0.2, height: 1.2
-                                            ),overflow: TextOverflow.ellipsis,
+                                                fontSize: 16,
+                                                letterSpacing: 0.2,
+                                                height: 1.2),
+                                            overflow: TextOverflow.ellipsis,
                                             maxLines: 4,
                                           ),
                                         ),
@@ -152,7 +169,8 @@ class listCreator2 extends StatelessWidget {
                                             alignment: Alignment.bottomLeft,
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(document[userID],
                                                     style: TextStyle(
@@ -168,12 +186,13 @@ class listCreator2 extends StatelessWidget {
                                           height: 30,
                                           child: Padding(
                                             padding: const EdgeInsets.only(
-                                                top:8.0, bottom: 8.0),
+                                                top: 8.0, bottom: 8.0),
                                             child: Row(
                                               mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                                  CrossAxisAlignment.center,
                                               children: <Widget>[
                                                 FlatButton.icon(
                                                     onPressed: () {},
@@ -182,22 +201,31 @@ class listCreator2 extends StatelessWidget {
                                                       size: 12,
                                                       color: Colors.grey,
                                                     ),
-                                                    label: Text(document["pageView"].toString())),
+                                                    label: Text(
+                                                        document["pageView"]
+                                                            .toString())),
                                                 FlatButton.icon(
                                                     onPressed: () {},
                                                     icon: Icon(
                                                         Icons.favorite_border,
                                                         size: 12,
                                                         color: Colors.grey),
-                                                    label: Text(document["likes"].toString())),
+                                                    label: Text(
+                                                        document["likes"]
+                                                            .toString())),
                                                 FlatButton.icon(
                                                     onPressed: () {},
-                                                    icon: Icon(Icons.add_comment,
+                                                    icon: Icon(
+                                                        Icons.add_comment,
                                                         size: 12,
                                                         color: Colors.grey),
-                                                    label: Text(document["replys"].toString())),
+                                                    label: Text(
+                                                        document["replys"]
+                                                            .toString())),
                                                 Text(
-                                                  dt.substring(2, 16).toString(),
+                                                  dt
+                                                      .substring(2, 16)
+                                                      .toString(),
                                                   style: TextStyle(
                                                     color: Colors.grey,
                                                   ),
@@ -223,24 +251,13 @@ class listCreator2 extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          onPressed:
-          //   () {
-          // appState.currentAction = PageAction(
-          //   state: PageState.addPage,
-          //   widget: WritePage(colName));},
-
-
-
-
-              ()=>  Navigator.push( context, MaterialPageRoute( builder: (context) => WritePage(colName)),),
-          // onPressed: () => appState.currentAction =
-          //     PageAction(state: PageState.addPage, page: CartPageConfig),
-
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => writePollRequest()),
+          ),
           backgroundColor: kPrimaryColor,
-        )
-    );
+        ));
     // Create Document
-
   }
 
   /// Firestore CRUD Logic
@@ -266,9 +283,8 @@ class listCreator2 extends StatelessWidget {
   }
 
   void showReadDocSnackBar(DocumentSnapshot doc, appState) {
-    appState.currentAction = PageAction(
-        state: PageState.addPage,
-        page: DetailsPageConfig);
+    appState.currentAction =
+        PageAction(state: PageState.addPage, page: DetailsPageConfig);
   }
 
 // 문서 갱신 (Update)
@@ -333,7 +349,6 @@ class listCreator2 extends StatelessWidget {
         );
       },
     );
-
   }
 
   void showUpdateOrDeleteDocDialog(DocumentSnapshot doc, context) {
@@ -387,18 +402,13 @@ class listCreator2 extends StatelessWidget {
               },
             )
           ],
-
         );
-
       },
-
     );
-
   }
 
   String timestampToStrDateTime(Timestamp ts) {
     return DateTime.fromMicrosecondsSinceEpoch(ts.microsecondsSinceEpoch)
         .toString();
   }
-
 }

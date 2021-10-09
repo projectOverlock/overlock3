@@ -10,7 +10,7 @@ import 'pollPages.dart';
 class stackedCardMain extends StatelessWidget {
   final List<Widget> fancyCards = [
     FancyCard(
-      image: Image.asset("assets/images/6.jpg"),
+      image: Image.network('https://picsum.photos/id/421/200/400'),
       title: "부실급식 문제",
       contents: "저는 5월 31일에 x사단 xx 신병교육대대로 입영했던 한 훈련병입니다",
       pollName: "투표1",
@@ -25,7 +25,6 @@ class stackedCardMain extends StatelessWidget {
       image: Image.asset("assets/images/3.jpg"),
       title: "코로나 격리실태",
       contents: "저는 5월 31일에 x사단 xx 신병교육대대로 입영했던 한 훈련병입니다. ",
-
       pollName: "투표3",
     ),
     FancyCard(
@@ -56,21 +55,7 @@ class stackedCardMain extends StatelessWidget {
     final appState = Provider.of<AppState>(context, listen: false);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("투표"),
-            IconButton(
-              icon: const Icon(Icons.settings, size: 18, color: Colors.white,),
-              onPressed: () => appState.currentAction = PageAction(
-                  state: PageState.addPage, page: SettingsPageConfig),
-            ),
-          ],
-        ),
-        backgroundColor: kPrimaryColor,
-      ),
-      body: StackedCardCarousel(
+     body: StackedCardCarousel(
         initialOffset: 0,
         type: StackedCardCarouselType.fadeOutStack,
         spaceBetweenItems: itemHeight * 0.77,

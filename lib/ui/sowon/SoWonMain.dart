@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import '../../app_state.dart';
 import 'SoWonList.dart';
 
-final _valueList = ['폭언', '폭행', '성추행성폭행', '소원수리'];
+final _valueList = ['폭언', '폭행', '성추행','성폭행','소원수리', '불평등','부조리','비리'];
 var _selectedValue = '폭언';
 
 class soWonMain extends StatefulWidget {

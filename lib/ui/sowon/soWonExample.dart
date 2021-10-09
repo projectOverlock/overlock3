@@ -68,7 +68,9 @@ class _soWonExampleState extends State<soWonExample> {
                 if (snapshot.hasError) return Text("Error: ${snapshot.error}");
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
-                    return Text("Loading...");
+                    return CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    );
                   default:
                     return ListView(
                       children:
@@ -83,7 +85,8 @@ class _soWonExampleState extends State<soWonExample> {
                             onTap: () {
                               appState.currentAction = PageAction(
                                   state: PageState.addPage,
-                                  widget:  Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),   ),
+                                  widget:  Details( document[fnName], document[userID], document[fnDescription], document.id, colName, document["pageView"].toString(), document["likes"].toString(), document["replys"].toString(),       document["hates"].toString(),                                    document["uid"].toString(),
+                                  ),
                                   page: DetailsPageConfig);
                               int view = document["pageView"];
                               view++;
